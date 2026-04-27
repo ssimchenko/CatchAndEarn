@@ -77,13 +77,30 @@ public partial class MainWindow : Window
         {
             bool success = skillCheck.TryHit();
 
-            SkillCheckPanel.IsVisible = false;
-
             state = GameState.Result;
+
+            // меняем цвет зоны
+            if (success)
+            {
+                SuccessZone.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.LimeGreen);
+            }
+            else
+            {
+                SuccessZone.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Red);
+            }
 
             ResultText.Text = success ? "Поймал рыбу!" : "Рыба сорвалась";
 
-            await Task.Delay(800);
+            // даём время увидеть изменение
+            await Task.Delay(600);
+
+            // скрываем шкалу
+            SkillCheckPanel.IsVisible = false;
+
+            // возвращаем исходный цвет
+            SuccessZone.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Green);
+
+            await Task.Delay(200);
 
             state = GameState.Idle;
             ResultText.Text = "Нажми Ловить";
