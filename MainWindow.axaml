@@ -1,0 +1,124 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="CatchAndEarn.MainWindow"
+        Title="Catch &amp; Earn"
+        Width="1280" Height="720"
+        Background="Black">
+
+	<Viewbox Stretch="Uniform">
+
+		<Grid Width="1280" Height="720">
+
+			<!-- МЕНЮ -->
+			<Grid x:Name="MenuPanel">
+
+				<!-- фон -->
+				<Image Source="avares://CatchAndEarn/Assets/background.png"
+                       Stretch="Fill"/>
+
+				<!-- центрированный контейнер -->
+				<Grid HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Width="600">
+
+					<StackPanel HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="15">
+
+						<!-- TITLE -->
+						<Image Source="avares://CatchAndEarn/Assets/title.png"
+                               Width="600"
+                               HorizontalAlignment="Center"
+                               Margin="0,-80,0,20"/>
+
+						<!-- PLAY -->
+						<Button Click="StartGame_Click"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                HorizontalAlignment="Center">
+							<Image Source="avares://CatchAndEarn/Assets/playbutton.png"
+                                   Width="300"/>
+						</Button>
+
+						<!-- EXIT -->
+						<Button Click="Exit_Click"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                HorizontalAlignment="Center">
+							<Image Source="avares://CatchAndEarn/Assets/exitbutton.png"
+                                   Width="300"/>
+						</Button>
+
+					</StackPanel>
+
+				</Grid>
+
+			</Grid>
+
+			<!-- ИГРА -->
+			<Grid x:Name="GamePanel"
+                  IsVisible="False"
+                  RowDefinitions="*, Auto"
+                  Margin="10">
+
+				<!-- сцена -->
+				<Border Grid.Row="0"
+                        Background="#1b2631"
+                        BorderBrush="#2f3b4a"
+                        BorderThickness="2">
+
+					<TextBlock Text="Озеро"
+                               Foreground="#8ecae6"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+				</Border>
+
+				<!-- UI -->
+				<StackPanel Grid.Row="1" Spacing="10">
+
+					<TextBlock x:Name="CoinsText"
+                               Text="Монеты: 0"
+                               Foreground="White"/>
+
+					<Button x:Name="CatchButton"
+                            Content="ЛОВИТЬ"
+                            Height="45"
+                            Click="CatchButton_Click"/>
+
+					<TextBlock x:Name="ResultText"
+                               Text="Нажми Ловить"
+                               Foreground="White"/>
+
+					<!-- ШКАЛА -->
+					<Grid x:Name="SkillCheckPanel"
+                          IsVisible="False"
+                          Height="30"
+                          Width="400"
+                          Background="#222"
+                          HorizontalAlignment="Center">
+
+						<!-- зона -->
+						<Border x:Name="SuccessZone"
+                                Background="Green"
+                                HorizontalAlignment="Left"
+                                Width="80"/>
+
+						<!-- маркер -->
+						<Border x:Name="Marker"
+                                Background="Red"
+                                Width="6"
+                                HorizontalAlignment="Left"/>
+					</Grid>
+
+					<Button Content="В МЕНЮ"
+                            Click="BackToMenu_Click"/>
+
+				</StackPanel>
+
+			</Grid>
+
+		</Grid>
+
+	</Viewbox>
+
+</Window>
