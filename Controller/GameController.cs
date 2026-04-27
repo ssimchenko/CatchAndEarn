@@ -1,4 +1,5 @@
 ﻿using CatchAndEarn.Model;
+using System;
 
 namespace CatchAndEarn.Controller;
 
@@ -20,11 +21,16 @@ public class GameController
         if (fish == null)
             return "Не клюёт";
 
-        if (player.HasCaught(fish.Name))
-            return $"Пойман {fish.Name}, но ты уже ловил его раньше";
+        bool isNew = !player.HasCaught(fish.Name);
 
-        player.CatchFish(fish.Name, 10);
-        return $"Пойман новый вид: {fish.Name}! +10 монет";
+        int reward = isNew ? fish.Reward : Math.Max(1, fish.Reward / 10);
+
+        player.CatchFish(fish.Name, reward);
+
+        if (isNew)
+            return $"Пойман новый вид: {fish.Name}! +{reward} монет";
+        else
+            return $"Пойман {fish.Name} повторно (+{reward} монет)";
     }
 
     public int GetCoins()

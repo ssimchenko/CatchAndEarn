@@ -1,6 +1,5 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Layout;
 using CatchAndEarn.Controller;
 using CatchAndEarn.Model;
 using System;
@@ -41,6 +40,7 @@ public partial class MainWindow : Window
         GamePanel.IsVisible = true;
 
         ResultText.Text = "Нажми Ловить";
+        UpdateCoins();
     }
 
     private void BackToMenu_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -65,7 +65,6 @@ public partial class MainWindow : Window
 
             skillCheck = new SkillCheck();
             skillCheck.OnUpdate += UpdateSkillCheckUI;
-
             skillCheck.Start();
 
             SkillCheckPanel.IsVisible = true;
@@ -79,25 +78,25 @@ public partial class MainWindow : Window
 
             state = GameState.Result;
 
-            // меняем цвет зоны
             if (success)
             {
                 SuccessZone.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.LimeGreen);
+
+                var result = gameController?.Catch();
+                ResultText.Text = result ?? "Ошибка";
+
+                UpdateCoins();
             }
             else
             {
                 SuccessZone.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Red);
+                ResultText.Text = "Рыба сорвалась";
             }
 
-            ResultText.Text = success ? "Поймал рыбу!" : "Рыба сорвалась";
-
-            // даём время увидеть изменение
             await Task.Delay(600);
 
-            // скрываем шкалу
             SkillCheckPanel.IsVisible = false;
 
-            // возвращаем исходный цвет
             SuccessZone.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Green);
 
             await Task.Delay(200);
@@ -114,14 +113,20 @@ public partial class MainWindow : Window
 
         double width = SkillCheckPanel.Bounds.Width;
 
-        // движение маркера
         Marker.Margin = new Thickness(skillCheck.Position * width, 0, 0, 0);
 
-        // зона успеха
         double zoneWidth = (skillCheck.ZoneEnd - skillCheck.ZoneStart) * width;
         double zoneStart = skillCheck.ZoneStart * width;
 
         SuccessZone.Width = zoneWidth;
         SuccessZone.Margin = new Thickness(zoneStart, 0, 0, 0);
+    }
+
+    private void UpdateCoins()
+    {
+        if (gameController == null)
+            return;
+
+        CoinsText.Text = $"Монеты: {gameController.GetCoins()}";
     }
 }
