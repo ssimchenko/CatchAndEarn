@@ -14,6 +14,10 @@ public partial class MainWindow : Window
     private SkillCheck? skillCheck;
     private GameState state = GameState.Idle;
 
+    // ВАЖНО: вот этих полей у тебя не было
+    private FishingService fishingService = new FishingService();
+    private Fish? currentFish;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -32,8 +36,7 @@ public partial class MainWindow : Window
         if (gameController == null)
         {
             var player = new Player();
-            var fishingService = new FishingService();
-            gameController = new GameController(player, fishingService);
+            gameController = new GameController(player);
         }
 
         MenuPanel.IsVisible = false;
@@ -63,14 +66,28 @@ public partial class MainWindow : Window
 
             await Task.Delay(new Random().Next(1000, 2000));
 
-            skillCheck = new SkillCheck();
+            // выбираем рыбу
+            var fish = fishingService.TryCatchFish();
+
+            if (fish == null)
+            {
+                ResultText.Text = "Не клюёт";
+                state = GameState.Idle;
+                return;
+            }
+
+            currentFish = fish;
+
+            skillCheck = new SkillCheck(fish.Difficulty);
+
             skillCheck.OnUpdate += UpdateSkillCheckUI;
+
             skillCheck.Start();
 
             SkillCheckPanel.IsVisible = true;
 
             state = GameState.SkillCheck;
-            ResultText.Text = "ЛОВИ!";
+            ResultText.Text = $"ЛОВИ! ({fish.Name})";
         }
         else if (state == GameState.SkillCheck && skillCheck != null)
         {
@@ -82,8 +99,10 @@ public partial class MainWindow : Window
             {
                 SuccessZone.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.LimeGreen);
 
-                var result = gameController?.Catch();
-                ResultText.Text = result ?? "Ошибка";
+                if (currentFish != null)
+                {
+                    ResultText.Text = gameController!.RewardFish(currentFish);
+                }
 
                 UpdateCoins();
             }

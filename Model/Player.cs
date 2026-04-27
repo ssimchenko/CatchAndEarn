@@ -15,10 +15,15 @@ public class Player
 
     public void CatchFish(string fishName, int reward)
     {
-        if (caughtFish.Contains(fishName))
+        caughtFish.Add(fishName);
+        AddCoins(reward);
+    }
+
+    public void AddCoins(int amount)
+    {
+        if (amount <= 0)
             return;
 
-        caughtFish.Add(fishName);
-        Coins += reward;
+        Coins += amount;
     }
 }

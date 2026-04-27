@@ -7,21 +7,38 @@ public class SkillCheck
 {
     private readonly DispatcherTimer timer;
 
-    public double Position { get; private set; } = 0; // 0..1
-    private double direction = 1; // 1 вправо, -1 влево
+    public double Position { get; private set; } = 0;
+    private double direction = 1;
 
-    public double ZoneStart { get; } = 0.4;
-    public double ZoneEnd { get; } = 0.6;
+    public double ZoneStart { get; private set; }
+    public double ZoneEnd { get; private set; }
 
     public bool IsActive { get; private set; }
 
     public event Action? OnUpdate;
 
-    public SkillCheck()
+    private readonly double speed;
+
+    public SkillCheck(double difficulty)
     {
         timer = new DispatcherTimer();
-        timer.Interval = TimeSpan.FromMilliseconds(16); // ~60 FPS
+        timer.Interval = TimeSpan.FromMilliseconds(16);
         timer.Tick += Update;
+
+        // зона
+        double minZone = 0.05;
+        double maxZone = 0.3;
+
+        double zoneSize = maxZone - (difficulty * (maxZone - minZone));
+        zoneSize = Math.Clamp(zoneSize, 0.05, 0.3);
+
+        double center = 0.5;
+
+        ZoneStart = center - zoneSize / 2;
+        ZoneEnd = center + zoneSize / 2;
+
+        // скорость
+        speed = 0.006 + (difficulty * 0.02);
     }
 
     public void Start()
@@ -29,6 +46,7 @@ public class SkillCheck
         Position = 0;
         direction = 1;
         IsActive = true;
+
         timer.Start();
     }
 
@@ -40,7 +58,7 @@ public class SkillCheck
 
     private void Update(object? sender, EventArgs e)
     {
-        Position += 0.01 * direction;
+        Position += speed * direction;
 
         if (Position >= 1)
         {

@@ -6,21 +6,14 @@ namespace CatchAndEarn.Controller;
 public class GameController
 {
     private readonly Player player;
-    private readonly FishingService fishingService;
 
-    public GameController(Player player, FishingService fishingService)
+    public GameController(Player player)
     {
         this.player = player;
-        this.fishingService = fishingService;
     }
 
-    public string Catch()
+    public string RewardFish(Fish fish)
     {
-        var fish = fishingService.TryCatchFish();
-
-        if (fish == null)
-            return "Не клюёт";
-
         bool isNew = !player.HasCaught(fish.Name);
 
         int reward = isNew ? fish.Reward : Math.Max(1, fish.Reward / 10);
@@ -29,8 +22,8 @@ public class GameController
 
         if (isNew)
             return $"Пойман новый вид: {fish.Name}! +{reward} монет";
-        else
-            return $"Пойман {fish.Name} повторно (+{reward} монет)";
+
+        return $"Пойман {fish.Name} повторно (+{reward} монет)";
     }
 
     public int GetCoins()
