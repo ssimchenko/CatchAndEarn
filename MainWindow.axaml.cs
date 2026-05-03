@@ -14,7 +14,6 @@ public partial class MainWindow : Window
     private SkillCheck? skillCheck;
     private GameState state = GameState.Idle;
 
-    // ¬ј∆Ќќ: вот этих полей у теб€ не было
     private FishingService fishingService = new FishingService();
     private Fish? currentFish;
 
