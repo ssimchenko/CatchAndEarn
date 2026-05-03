@@ -6,13 +6,16 @@ namespace CatchAndEarn.Model;
 public class SkillCheck
 {
     private readonly DispatcherTimer timer;
-    private readonly double speed;
+    private readonly double markerSpeed;
+    private readonly bool isZoneMoving;
+    private readonly double zoneMoveSpeed;
 
     public double Position { get; private set; } = 0;
-    private double direction = 1;
+    private double markerDirection = 1;
 
     public double ZoneStart { get; private set; }
     public double ZoneEnd { get; private set; }
+    private double zoneDirection = 1;
 
     public bool IsActive { get; private set; }
 
@@ -35,13 +38,21 @@ public class SkillCheck
         ZoneStart = center - zoneSize / 2;
         ZoneEnd = center + zoneSize / 2;
 
-        speed = 0.012 + difficulty * 0.028;
+        markerSpeed = 0.012 + difficulty * 0.028;
+
+        // Движение зоны включается для сложных рыб:
+        // Демоническая рыба и все, кто реже неё.
+        isZoneMoving = difficulty >= 0.88;
+
+        // Чем сложнее рыба, тем быстрее двигается зона.
+        zoneMoveSpeed = 0.002 + difficulty * 0.004;
     }
 
     public void Start()
     {
         Position = 0;
-        direction = 1;
+        markerDirection = 1;
+        zoneDirection = 1;
         IsActive = true;
 
         timer.Start();
@@ -55,21 +66,51 @@ public class SkillCheck
 
     private void Update(object? sender, EventArgs e)
     {
-        Position += speed * direction;
+        UpdateMarker();
+
+        if (isZoneMoving)
+            UpdateZone();
+
+        OnUpdate?.Invoke();
+    }
+
+    private void UpdateMarker()
+    {
+        Position += markerSpeed * markerDirection;
 
         if (Position >= 1)
         {
             Position = 1;
-            direction = -1;
+            markerDirection = -1;
         }
 
         if (Position <= 0)
         {
             Position = 0;
-            direction = 1;
+            markerDirection = 1;
+        }
+    }
+
+    private void UpdateZone()
+    {
+        double zoneSize = ZoneEnd - ZoneStart;
+
+        ZoneStart += zoneMoveSpeed * zoneDirection;
+        ZoneEnd += zoneMoveSpeed * zoneDirection;
+
+        if (ZoneEnd >= 1)
+        {
+            ZoneEnd = 1;
+            ZoneStart = ZoneEnd - zoneSize;
+            zoneDirection = -1;
         }
 
-        OnUpdate?.Invoke();
+        if (ZoneStart <= 0)
+        {
+            ZoneStart = 0;
+            ZoneEnd = ZoneStart + zoneSize;
+            zoneDirection = 1;
+        }
     }
 
     public bool TryHit()
