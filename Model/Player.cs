@@ -6,8 +6,8 @@ public class Player
 {
     public int Coins { get; private set; } = 0;
     public HashSet<string> CaughtFish { get; private set; } = new();
-
     public List<Upgrade> PurchasedUpgrades { get; private set; } = new();
+    public int CurrentLake { get; set; } = 1;
 
     public void AddCoins(int amount) => Coins += amount;
 

@@ -23,6 +23,7 @@ public partial class MainWindow : Window
 
     private readonly List<Upgrade> upgrades = new()
     {
+        new Upgrade("Ключ от Озера 2", "Открывает второе озеро. Улучшения можно купить заново.", 1000),
         new Upgrade("Широкая зона", "Увеличивает зону успеха в skillcheck в 3 раза", 10),
         new Upgrade("Золотая приманка", "Повышает шанс поймать редкую рыбу на 5%", 10),
         new Upgrade("Бонус монет", "Получай на 10% больше монет с каждой рыбы", 10),
@@ -54,10 +55,13 @@ public partial class MainWindow : Window
         MenuPanel.IsVisible = false;
         GamePanel.IsVisible = true;
 
+        int lake = gameController.GetPlayer().CurrentLake;
+        LakeText.Text = lake == 1 ? "Озеро 1" : "Озеро 2";
         ResultText.Text = "Нажми Ловить";
 
         UpdateCoins();
         UpdateCollection();
+        UpdateShopUI();
     }
 
     private void BackToMenu_Click(object? sender, RoutedEventArgs e)
@@ -103,13 +107,21 @@ public partial class MainWindow : Window
     {
         ShopList.Children.Clear();
 
+        int currentLake = gameController != null ? gameController.GetPlayer().CurrentLake : 1;
+
         foreach (var upgrade in upgrades)
         {
             var panel = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 10 };
 
+            string displayText = $"{upgrade.Name} — {upgrade.Description} — {upgrade.Cost} монет";
+            if (upgrade.Name == "Ключ от Озера 2" && currentLake >= 2)
+            {
+                displayText = $"{upgrade.Name} — Уже открыто";
+            }
+
             var info = new TextBlock
             {
-                Text = $"{upgrade.Name} — {upgrade.Description} — {upgrade.Cost} монет",
+                Text = displayText,
                 Foreground = Brushes.White,
                 Width = 260,
                 TextWrapping = Avalonia.Media.TextWrapping.Wrap
@@ -118,16 +130,39 @@ public partial class MainWindow : Window
             var button = new Button
             {
                 Content = upgrade.Purchased ? "Куплено" : "Купить",
-                IsEnabled = !upgrade.Purchased,
+                IsEnabled = !(upgrade.Purchased || (upgrade.Name == "Ключ от Озера 2" && currentLake >= 2)),
                 Width = 100
             };
 
             button.Click += (_, __) =>
             {
-                if (gameController != null && gameController.BuyUpgrade(upgrade))
+                if (gameController == null) return;
+
+                if (upgrade.Name == "Ключ от Озера 2")
                 {
-                    UpdateCoins();
-                    UpdateShopUI();
+                    if (currentLake >= 2) return;
+
+                    if (gameController.GetPlayer().SpendCoins(upgrade.Cost))
+                    {
+                        upgrade.Purchased = true;
+                        gameController.GetPlayer().CurrentLake = 2;
+                        LakeText.Text = "Озеро 2";
+                        ResultText.Text = "Добро пожаловать в Озеро 2! Улучшения сброшены и доступны для покупки заново.";
+
+                        foreach (var u in upgrades)
+                            if (u.Name != "Ключ от Озера 2") u.Purchased = false;
+
+                        UpdateCoins();
+                        UpdateShopUI();
+                    }
+                }
+                else
+                {
+                    if (gameController.BuyUpgrade(upgrade))
+                    {
+                        UpdateCoins();
+                        UpdateShopUI();
+                    }
                 }
             };
 
@@ -150,7 +185,8 @@ public partial class MainWindow : Window
             await Task.Delay(random.Next(1000, 2000));
 
             bool goldenLureActive = gameController.GetPlayer().HasUpgrade("Золотая приманка");
-            var fish = fishingService.TryCatchFish(goldenLureActive);
+            double lureBonus = gameController.GetPlayer().CurrentLake == 1 ? 5.0 : 10.0;
+            var fish = fishingService.TryCatchFish(goldenLureActive, lureBonus);
 
             if (fish == null)
             {
@@ -161,13 +197,15 @@ public partial class MainWindow : Window
 
             currentFish = fish;
 
+            int currentLake = gameController.GetPlayer().CurrentLake;
+
             double zoneBonus = 1.0;
             if (gameController.GetPlayer().HasUpgrade("Широкая зона"))
-                zoneBonus = 3.0;
+                zoneBonus = currentLake == 1 ? 3.0 : 5.0;
 
             double markerSpeedBonus = 1.0;
             if (gameController.GetPlayer().HasUpgrade("Скоростная реакция"))
-                markerSpeedBonus = 0.5;
+                markerSpeedBonus = currentLake == 1 ? 0.5 : 0.3;
 
             skillCheck = new SkillCheck(fish.Difficulty, zoneBonus, markerSpeedBonus);
             skillCheck.OnUpdate += UpdateSkillCheckUI;
@@ -193,7 +231,9 @@ public partial class MainWindow : Window
                 bool trophyNetActive = gameController.GetPlayer().HasUpgrade("Трофейная сетка");
                 if (trophyNetActive)
                 {
-                    var secondFish = fishingService.TryCatchFish(gameController.GetPlayer().HasUpgrade("Золотая приманка"));
+                    bool lure = gameController.GetPlayer().HasUpgrade("Золотая приманка");
+                    double lb = gameController.GetPlayer().CurrentLake == 1 ? 5.0 : 10.0;
+                    var secondFish = fishingService.TryCatchFish(lure, lb);
                     if (secondFish != null)
                     {
                         resultMessage += "\n" + gameController.RewardFish(secondFish);

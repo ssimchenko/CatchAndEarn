@@ -62,7 +62,8 @@
                             BorderBrush="#2f3b4a"
                             BorderThickness="2">
 
-                        <TextBlock Text="Озеро"
+                        <TextBlock x:Name="LakeText"
+                                   Text="Озеро"
                                    Foreground="#8ecae6"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"

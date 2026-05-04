@@ -32,7 +32,7 @@ public class FishingService
         return fishes;
     }
 
-    public Fish? TryCatchFish(bool goldenLureActive = false)
+    public Fish? TryCatchFish(bool goldenLureActive = false, double rareFishBonus = 5.0)
     {
         if (random.NextDouble() < 0.05)
             return null;
@@ -42,7 +42,7 @@ public class FishingService
         {
             double chance = fish.Chance;
             if (goldenLureActive && fish.Chance <= 5.0)
-                chance += 5.0;
+                chance += rareFishBonus;
             totalChance += chance;
         }
 
@@ -53,7 +53,7 @@ public class FishingService
         {
             double chance = fish.Chance;
             if (goldenLureActive && fish.Chance <= 5.0)
-                chance += 5.0;
+                chance += rareFishBonus;
 
             current += chance;
 
