@@ -23,9 +23,8 @@ public class GameController
         if (HasCaughtFish(fish.Name))
             reward = Math.Max(1, reward / 10);
 
-        // Применяем бонус монет, если куплен
         if (player.HasUpgrade("Бонус монет"))
-            reward = (int)(reward * 1.1);
+            reward = (int)Math.Round(reward * 1.1);
 
         player.AddCoins(reward);
         player.CaughtFish.Add(fish.Name);
