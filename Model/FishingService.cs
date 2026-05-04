@@ -32,19 +32,30 @@ public class FishingService
         return fishes;
     }
 
-    public Fish? TryCatchFish()
+    public Fish? TryCatchFish(bool goldenLureActive = false)
     {
         if (random.NextDouble() < 0.05)
             return null;
 
-        double totalChance = fishes.Sum(f => f.Chance);
+        double totalChance = 0;
+        foreach (var fish in fishes)
+        {
+            double chance = fish.Chance;
+            if (goldenLureActive && fish.Chance <= 5.0)
+                chance += 5.0;
+            totalChance += chance;
+        }
 
         double roll = random.NextDouble() * totalChance;
         double current = 0;
 
         foreach (var fish in fishes)
         {
-            current += fish.Chance;
+            double chance = fish.Chance;
+            if (goldenLureActive && fish.Chance <= 5.0)
+                chance += 5.0;
+
+            current += chance;
 
             if (roll <= current)
                 return fish;

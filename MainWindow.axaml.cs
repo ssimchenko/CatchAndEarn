@@ -149,7 +149,8 @@ public partial class MainWindow : Window
 
             await Task.Delay(random.Next(1000, 2000));
 
-            var fish = fishingService.TryCatchFish();
+            bool goldenLureActive = gameController.GetPlayer().HasUpgrade("Золотая приманка");
+            var fish = fishingService.TryCatchFish(goldenLureActive);
 
             if (fish == null)
             {

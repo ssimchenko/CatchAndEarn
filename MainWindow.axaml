@@ -96,7 +96,7 @@
                               HorizontalAlignment="Center">
 
                             <Border x:Name="SuccessZone"
-                                    Background="Blue"
+                                    Background="Green"
                                     HorizontalAlignment="Left"
                                     Width="80"/>
 
