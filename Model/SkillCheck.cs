@@ -21,7 +21,7 @@ public class SkillCheck
 
     public event Action? OnUpdate;
 
-    public SkillCheck(double difficulty, double zoneBonus = 1.0)
+    public SkillCheck(double difficulty, double zoneBonus = 1.0, double markerSpeedBonus = 1.0)
     {
         timer = new DispatcherTimer();
         timer.Interval = TimeSpan.FromMilliseconds(16);
@@ -41,7 +41,7 @@ public class SkillCheck
         ZoneStart = center - zoneSize / 2;
         ZoneEnd = center + zoneSize / 2;
 
-        markerSpeed = 0.008 + difficulty * 0.018;
+        markerSpeed = (0.008 + difficulty * 0.018) * markerSpeedBonus;
 
         isZoneMoving = difficulty >= 0.88;
 

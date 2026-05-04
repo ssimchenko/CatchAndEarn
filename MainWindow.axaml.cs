@@ -26,7 +26,7 @@ public partial class MainWindow : Window
         new Upgrade("Широкая зона", "Увеличивает зону успеха в skillcheck в 3 раза", 10),
         new Upgrade("Золотая приманка", "Повышает шанс поймать редкую рыбу на 5%", 10),
         new Upgrade("Бонус монет", "Получай на 10% больше монет с каждой рыбы", 10),
-        new Upgrade("Скоростная реакция", "Замедляет движение маркера на 15%", 10),
+        new Upgrade("Скоростная реакция", "Замедляет движение маркера на 50%", 10),
         new Upgrade("Трофейная сетка", "Позволяет ловить сразу две рыбы с одного броска", 10)
     };
 
@@ -165,7 +165,11 @@ public partial class MainWindow : Window
             if (gameController.GetPlayer().HasUpgrade("Широкая зона"))
                 zoneBonus = 3.0;
 
-            skillCheck = new SkillCheck(fish.Difficulty, zoneBonus);
+            double markerSpeedBonus = 1.0;
+            if (gameController.GetPlayer().HasUpgrade("Скоростная реакция"))
+                markerSpeedBonus = 0.5;
+
+            skillCheck = new SkillCheck(fish.Difficulty, zoneBonus, markerSpeedBonus);
             skillCheck.OnUpdate += UpdateSkillCheckUI;
             skillCheck.Start();
 
