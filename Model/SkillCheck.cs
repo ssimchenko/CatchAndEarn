@@ -21,7 +21,7 @@ public class SkillCheck
 
     public event Action? OnUpdate;
 
-    public SkillCheck(double difficulty)
+    public SkillCheck(double difficulty, double zoneBonus = 1.0)
     {
         timer = new DispatcherTimer();
         timer.Interval = TimeSpan.FromMilliseconds(16);
@@ -29,6 +29,9 @@ public class SkillCheck
 
         double minZone = 0.035;
         double maxZone = 0.18;
+
+        maxZone *= zoneBonus;
+        maxZone = Math.Clamp(maxZone, minZone, 0.6);
 
         double zoneSize = maxZone - difficulty * (maxZone - minZone);
         zoneSize = Math.Clamp(zoneSize, minZone, maxZone);
@@ -40,11 +43,8 @@ public class SkillCheck
 
         markerSpeed = 0.008 + difficulty * 0.018;
 
-        // Движение зоны включается для сложных рыб:
-        // Демоническая рыба и все, кто реже неё.
         isZoneMoving = difficulty >= 0.88;
 
-        // Чем сложнее рыба, тем быстрее двигается зона.
         zoneMoveSpeed = 0.002 + difficulty * 0.004;
     }
 

@@ -96,7 +96,7 @@
                               HorizontalAlignment="Center">
 
                             <Border x:Name="SuccessZone"
-                                    Background="Green"
+                                    Background="Blue"
                                     HorizontalAlignment="Left"
                                     Width="80"/>
 
@@ -118,7 +118,6 @@
                                     Width="160"
                                     Click="BackToMenu_Click"/>
 
-                            <!-- Новая кнопка магазина -->
                             <Button Content="МАГАЗИН"
                                     Width="160"
                                     Click="ToggleShop_Click"/>

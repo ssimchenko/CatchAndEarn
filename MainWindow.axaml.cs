@@ -21,10 +21,9 @@ public partial class MainWindow : Window
     private Fish? currentFish;
     private readonly Random random = new();
 
-    // Список улучшений для магазина
     private readonly List<Upgrade> upgrades = new()
     {
-        new Upgrade("Широкая зона", "Увеличивает зону успеха в skillcheck на 10%", 10),
+        new Upgrade("Широкая зона", "Увеличивает зону успеха в skillcheck в 3 раза", 10),
         new Upgrade("Золотая приманка", "Повышает шанс поймать редкую рыбу на 5%", 10),
         new Upgrade("Бонус монет", "Получай на 10% больше монет с каждой рыбы", 50),
         new Upgrade("Скоростная реакция", "Замедляет движение маркера на 15%", 60),
@@ -44,7 +43,6 @@ public partial class MainWindow : Window
         Result
     }
 
-    // --- Основное меню ---
     private void StartGame_Click(object? sender, RoutedEventArgs e)
     {
         if (gameController == null)
@@ -75,7 +73,6 @@ public partial class MainWindow : Window
         Close();
     }
 
-    // --- Коллекция рыб ---
     private void ToggleCollection_Click(object? sender, RoutedEventArgs e)
     {
         CollectionPanel.IsVisible = !CollectionPanel.IsVisible;
@@ -96,7 +93,6 @@ public partial class MainWindow : Window
         CollectionText.Text = text.ToString();
     }
 
-    // --- Магазин ---
     private void ToggleShop_Click(object? sender, RoutedEventArgs e)
     {
         ShopPanel.IsVisible = !ShopPanel.IsVisible;
@@ -142,7 +138,6 @@ public partial class MainWindow : Window
         }
     }
 
-    // --- Кнопка ЛОВИТЬ и skillcheck ---
     private async void CatchButton_Click(object? sender, RoutedEventArgs e)
     {
         if (gameController == null) return;
@@ -165,7 +160,11 @@ public partial class MainWindow : Window
 
             currentFish = fish;
 
-            skillCheck = new SkillCheck(fish.Difficulty);
+            double zoneBonus = 1.0;
+            if (gameController.GetPlayer().HasUpgrade("Широкая зона"))
+                zoneBonus = 3.0;
+
+            skillCheck = new SkillCheck(fish.Difficulty, zoneBonus);
             skillCheck.OnUpdate += UpdateSkillCheckUI;
             skillCheck.Start();
 
