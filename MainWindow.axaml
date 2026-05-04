@@ -5,120 +5,186 @@
         Width="1280" Height="720"
         Background="Black">
 
-	<Viewbox Stretch="Uniform">
+    <Viewbox Stretch="Uniform">
 
-		<Grid Width="1280" Height="720">
+        <Grid Width="1280" Height="720">
 
-			<!-- МЕНЮ -->
-			<Grid x:Name="MenuPanel">
+            <!-- Главное меню -->
+            <Grid x:Name="MenuPanel">
 
-				<!-- фон -->
-				<Image Source="avares://CatchAndEarn/Assets/background.png"
+                <Image Source="avares://CatchAndEarn/Assets/background.png"
                        Stretch="Fill"/>
 
-				<!-- центрированный контейнер -->
-				<Grid HorizontalAlignment="Center"
+                <Grid HorizontalAlignment="Center"
                       VerticalAlignment="Center"
                       Width="600">
 
-					<StackPanel HorizontalAlignment="Center"
+                    <StackPanel HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 Spacing="15">
 
-						<!-- TITLE -->
-						<Image Source="avares://CatchAndEarn/Assets/title.png"
+                        <Image Source="avares://CatchAndEarn/Assets/title.png"
                                Width="600"
                                HorizontalAlignment="Center"
                                Margin="0,-80,0,20"/>
 
-						<!-- PLAY -->
-						<Button Click="StartGame_Click"
+                        <Button Click="StartGame_Click"
                                 Background="Transparent"
                                 BorderThickness="0"
                                 HorizontalAlignment="Center">
-							<Image Source="avares://CatchAndEarn/Assets/playbutton.png"
+                            <Image Source="avares://CatchAndEarn/Assets/playbutton.png"
                                    Width="300"/>
-						</Button>
+                        </Button>
 
-						<!-- EXIT -->
-						<Button Click="Exit_Click"
+                        <Button Click="Exit_Click"
                                 Background="Transparent"
                                 BorderThickness="0"
                                 HorizontalAlignment="Center">
-							<Image Source="avares://CatchAndEarn/Assets/exitbutton.png"
+                            <Image Source="avares://CatchAndEarn/Assets/exitbutton.png"
                                    Width="300"/>
-						</Button>
+                        </Button>
 
-					</StackPanel>
+                    </StackPanel>
 
-				</Grid>
+                </Grid>
 
-			</Grid>
+            </Grid>
 
-			<!-- ИГРА -->
-			<Grid x:Name="GamePanel"
+            <!-- Игровой экран -->
+            <Grid x:Name="GamePanel"
                   IsVisible="False"
-                  RowDefinitions="*, Auto"
                   Margin="10">
 
-				<!-- сцена -->
-				<Border Grid.Row="0"
+                <Grid RowDefinitions="*, Auto">
+
+                    <Border Grid.Row="0"
+                            Background="#1b2631"
+                            BorderBrush="#2f3b4a"
+                            BorderThickness="2">
+
+                        <TextBlock Text="Озеро"
+                                   Foreground="#8ecae6"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontSize="24"/>
+                    </Border>
+
+                    <StackPanel Grid.Row="1"
+                                Spacing="10"
+                                Margin="0,10,0,0">
+
+                        <TextBlock x:Name="CoinsText"
+                                   Text="Монеты: 0"
+                                   Foreground="White"
+                                   FontSize="18"/>
+
+                        <Button x:Name="CatchButton"
+                                Content="ЛОВИТЬ"
+                                Height="45"
+                                Click="CatchButton_Click"/>
+
+                        <TextBlock x:Name="ResultText"
+                                   Text="Нажми Ловить"
+                                   Foreground="White"
+                                   FontSize="16"/>
+
+                        <Grid x:Name="SkillCheckPanel"
+                              IsVisible="False"
+                              Height="30"
+                              Width="400"
+                              Background="#222"
+                              HorizontalAlignment="Center">
+
+                            <Border x:Name="SuccessZone"
+                                    Background="Green"
+                                    HorizontalAlignment="Left"
+                                    Width="80"/>
+
+                            <Border x:Name="Marker"
+                                    Background="Red"
+                                    Width="6"
+                                    HorizontalAlignment="Left"/>
+                        </Grid>
+
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Spacing="10">
+
+                            <Button Content="КОЛЛЕКЦИЯ"
+                                    Width="160"
+                                    Click="ToggleCollection_Click"/>
+
+                            <Button Content="В МЕНЮ"
+                                    Width="160"
+                                    Click="BackToMenu_Click"/>
+
+                            <!-- Новая кнопка магазина -->
+                            <Button Content="МАГАЗИН"
+                                    Width="160"
+                                    Click="ToggleShop_Click"/>
+                        </StackPanel>
+
+                    </StackPanel>
+
+                </Grid>
+
+                <!-- Панель коллекции рыб -->
+                <Border x:Name="CollectionPanel"
+                        IsVisible="False"
+                        Width="380"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Stretch"
                         Background="#1b2631"
                         BorderBrush="#2f3b4a"
-                        BorderThickness="2">
+                        BorderThickness="2"
+                        Padding="12"
+                        Margin="0,0,0,95">
 
-					<TextBlock Text="Озеро"
-                               Foreground="#8ecae6"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-				</Border>
+                    <StackPanel Spacing="10">
 
-				<!-- UI -->
-				<StackPanel Grid.Row="1" Spacing="10">
+                        <TextBlock Text="Коллекция рыб"
+                                   Foreground="White"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center"/>
 
-					<TextBlock x:Name="CoinsText"
-                               Text="Монеты: 0"
-                               Foreground="White"/>
+                        <TextBlock x:Name="CollectionText"
+                                   Text=""
+                                   Foreground="White"
+                                   FontSize="15"
+                                   TextWrapping="Wrap"/>
 
-					<Button x:Name="CatchButton"
-                            Content="ЛОВИТЬ"
-                            Height="45"
-                            Click="CatchButton_Click"/>
+                    </StackPanel>
 
-					<TextBlock x:Name="ResultText"
-                               Text="Нажми Ловить"
-                               Foreground="White"/>
+                </Border>
 
-					<!-- ШКАЛА -->
-					<Grid x:Name="SkillCheckPanel"
-                          IsVisible="False"
-                          Height="30"
-                          Width="400"
-                          Background="#222"
-                          HorizontalAlignment="Center">
+                <!-- Панель магазина -->
+                <Border x:Name="ShopPanel"
+                        IsVisible="False"
+                        Width="400"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Stretch"
+                        Background="#1b2631"
+                        BorderBrush="#2f3b4a"
+                        BorderThickness="2"
+                        Padding="12"
+                        Margin="10,0,0,95">
 
-						<!-- зона -->
-						<Border x:Name="SuccessZone"
-                                Background="Green"
-                                HorizontalAlignment="Left"
-                                Width="80"/>
+                    <StackPanel Spacing="10">
 
-						<!-- маркер -->
-						<Border x:Name="Marker"
-                                Background="Red"
-                                Width="6"
-                                HorizontalAlignment="Left"/>
-					</Grid>
+                        <TextBlock Text="Магазин улучшений"
+                                   Foreground="White"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center"/>
+                        <StackPanel x:Name="ShopList" Spacing="8"/>
+                    </StackPanel>
+                </Border>
 
-					<Button Content="В МЕНЮ"
-                            Click="BackToMenu_Click"/>
+            </Grid>
 
-				</StackPanel>
+        </Grid>
 
-			</Grid>
-
-		</Grid>
-
-	</Viewbox>
+    </Viewbox>
 
 </Window>

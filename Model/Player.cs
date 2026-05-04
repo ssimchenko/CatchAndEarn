@@ -4,26 +4,34 @@ namespace CatchAndEarn.Model;
 
 public class Player
 {
-    public int Coins { get; private set; }
+    public int Coins { get; private set; } = 0;
+    public HashSet<string> CaughtFish { get; private set; } = new();
 
-    private readonly HashSet<string> caughtFish = new();
+    public List<Upgrade> PurchasedUpgrades { get; private set; } = new();
 
-    public bool HasCaught(string fishName)
+    public void AddCoins(int amount) => Coins += amount;
+
+    public bool SpendCoins(int amount)
     {
-        return caughtFish.Contains(fishName);
+        if (Coins >= amount)
+        {
+            Coins -= amount;
+            return true;
+        }
+        return false;
     }
 
-    public void CatchFish(string fishName, int reward)
+    public void PurchaseUpgrade(Upgrade upgrade)
     {
-        caughtFish.Add(fishName);
-        AddCoins(reward);
+        if (!PurchasedUpgrades.Contains(upgrade))
+        {
+            PurchasedUpgrades.Add(upgrade);
+            upgrade.Purchased = true;
+        }
     }
 
-    public void AddCoins(int amount)
+    public bool HasUpgrade(string upgradeName)
     {
-        if (amount <= 0)
-            return;
-
-        Coins += amount;
+        return PurchasedUpgrades.Exists(u => u.Name == upgradeName);
     }
 }

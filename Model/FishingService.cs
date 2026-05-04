@@ -27,6 +27,11 @@ public class FishingService
         new Fish("Легендарная Емельяновка", 0.1, 1000)
     };
 
+    public IReadOnlyList<Fish> GetAllFishes()
+    {
+        return fishes;
+    }
+
     public Fish? TryCatchFish()
     {
         if (random.NextDouble() < 0.05)

@@ -1,8 +1,12 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Interactivity;
 using CatchAndEarn.Controller;
 using CatchAndEarn.Model;
 using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CatchAndEarn;
@@ -10,12 +14,22 @@ namespace CatchAndEarn;
 public partial class MainWindow : Window
 {
     private GameController? gameController;
-
     private SkillCheck? skillCheck;
     private GameState state = GameState.Idle;
 
-    private FishingService fishingService = new FishingService();
+    private readonly FishingService fishingService = new();
     private Fish? currentFish;
+    private readonly Random random = new();
+
+    // Список улучшений для магазина
+    private readonly List<Upgrade> upgrades = new()
+    {
+        new Upgrade("Широкая зона", "Увеличивает зону успеха в skillcheck на 10%", 10),
+        new Upgrade("Золотая приманка", "Повышает шанс поймать редкую рыбу на 5%", 10),
+        new Upgrade("Бонус монет", "Получай на 10% больше монет с каждой рыбы", 50),
+        new Upgrade("Скоростная реакция", "Замедляет движение маркера на 15%", 60),
+        new Upgrade("Трофейная сетка", "Позволяет ловить сразу две рыбы с одного броска", 70)
+    };
 
     public MainWindow()
     {
@@ -30,7 +44,8 @@ public partial class MainWindow : Window
         Result
     }
 
-    private void StartGame_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    // --- Основное меню ---
+    private void StartGame_Click(object? sender, RoutedEventArgs e)
     {
         if (gameController == null)
         {
@@ -41,36 +56,109 @@ public partial class MainWindow : Window
         MenuPanel.IsVisible = false;
         GamePanel.IsVisible = true;
 
-        ResultText.Text = "����� ������";
+        ResultText.Text = "Нажми Ловить";
+
         UpdateCoins();
+        UpdateCollection();
     }
 
-    private void BackToMenu_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void BackToMenu_Click(object? sender, RoutedEventArgs e)
     {
         GamePanel.IsVisible = false;
         MenuPanel.IsVisible = true;
+        CollectionPanel.IsVisible = false;
+        ShopPanel.IsVisible = false;
     }
 
-    private void Exit_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void Exit_Click(object? sender, RoutedEventArgs e)
     {
         Close();
     }
 
-    private async void CatchButton_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    // --- Коллекция рыб ---
+    private void ToggleCollection_Click(object? sender, RoutedEventArgs e)
     {
+        CollectionPanel.IsVisible = !CollectionPanel.IsVisible;
+        UpdateCollection();
+    }
+
+    private void UpdateCollection()
+    {
+        if (gameController == null) return;
+
+        var text = new StringBuilder();
+        foreach (var fish in fishingService.GetAllFishes())
+        {
+            string status = gameController.HasCaughtFish(fish.Name) ? "✓" : "✕";
+            text.AppendLine($"{status} {fish.Name} — {fish.Chance:0.#}%");
+        }
+
+        CollectionText.Text = text.ToString();
+    }
+
+    // --- Магазин ---
+    private void ToggleShop_Click(object? sender, RoutedEventArgs e)
+    {
+        ShopPanel.IsVisible = !ShopPanel.IsVisible;
+        UpdateShopUI();
+    }
+
+    private void UpdateShopUI()
+    {
+        ShopList.Children.Clear();
+
+        foreach (var upgrade in upgrades)
+        {
+            var panel = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 10 };
+
+            var info = new TextBlock
+            {
+                Text = $"{upgrade.Name} — {upgrade.Description} — {upgrade.Cost} монет",
+                Foreground = Brushes.White,
+                Width = 260,
+                TextWrapping = Avalonia.Media.TextWrapping.Wrap
+            };
+
+            var button = new Button
+            {
+                Content = upgrade.Purchased ? "Куплено" : "Купить",
+                IsEnabled = !upgrade.Purchased,
+                Width = 100
+            };
+
+            button.Click += (_, __) =>
+            {
+                if (gameController != null && gameController.BuyUpgrade(upgrade))
+                {
+                    UpdateCoins();
+                    UpdateShopUI();
+                }
+            };
+
+            panel.Children.Add(info);
+            panel.Children.Add(button);
+
+            ShopList.Children.Add(panel);
+        }
+    }
+
+    // --- Кнопка ЛОВИТЬ и skillcheck ---
+    private async void CatchButton_Click(object? sender, RoutedEventArgs e)
+    {
+        if (gameController == null) return;
+
         if (state == GameState.Idle)
         {
             state = GameState.Waiting;
-            ResultText.Text = "�������� �������...";
+            ResultText.Text = "Ожидание поклёвки...";
 
-            await Task.Delay(new Random().Next(1000, 2000));
+            await Task.Delay(random.Next(1000, 2000));
 
-            // �������� ����
             var fish = fishingService.TryCatchFish();
 
             if (fish == null)
             {
-                ResultText.Text = "�� �����";
+                ResultText.Text = "Не клюёт";
                 state = GameState.Idle;
                 return;
             }
@@ -78,56 +166,47 @@ public partial class MainWindow : Window
             currentFish = fish;
 
             skillCheck = new SkillCheck(fish.Difficulty);
-
             skillCheck.OnUpdate += UpdateSkillCheckUI;
-
             skillCheck.Start();
 
             SkillCheckPanel.IsVisible = true;
-
             state = GameState.SkillCheck;
-            ResultText.Text = $"����! ({fish.Name})";
+            ResultText.Text = $"ЛОВИ! ({fish.Name})";
         }
         else if (state == GameState.SkillCheck && skillCheck != null)
         {
             bool success = skillCheck.TryHit();
-
             state = GameState.Result;
 
             if (success)
             {
-                SuccessZone.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.LimeGreen);
+                SuccessZone.Background = new SolidColorBrush(Colors.LimeGreen);
 
                 if (currentFish != null)
-                {
-                    ResultText.Text = gameController!.RewardFish(currentFish);
-                }
+                    ResultText.Text = gameController.RewardFish(currentFish);
 
                 UpdateCoins();
+                UpdateCollection();
             }
             else
             {
-                SuccessZone.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Red);
-                ResultText.Text = "���� ���������";
+                SuccessZone.Background = new SolidColorBrush(Colors.Red);
+                ResultText.Text = "Рыба сорвалась";
             }
 
             await Task.Delay(600);
-
             SkillCheckPanel.IsVisible = false;
-
-            SuccessZone.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Green);
+            SuccessZone.Background = new SolidColorBrush(Colors.Green);
 
             await Task.Delay(200);
-
             state = GameState.Idle;
-            ResultText.Text = "����� ������";
+            ResultText.Text = "Нажми Ловить";
         }
     }
 
     private void UpdateSkillCheckUI()
     {
-        if (skillCheck == null)
-            return;
+        if (skillCheck == null) return;
 
         double width = SkillCheckPanel.Bounds.Width;
 
@@ -142,9 +221,7 @@ public partial class MainWindow : Window
 
     private void UpdateCoins()
     {
-        if (gameController == null)
-            return;
-
-        CoinsText.Text = $"������: {gameController.GetCoins()}";
+        if (gameController == null) return;
+        CoinsText.Text = $"Монеты: {gameController.GetCoins()}";
     }
 }

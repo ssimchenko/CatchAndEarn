@@ -38,7 +38,7 @@ public class SkillCheck
         ZoneStart = center - zoneSize / 2;
         ZoneEnd = center + zoneSize / 2;
 
-        markerSpeed = 0.012 + difficulty * 0.028;
+        markerSpeed = 0.008 + difficulty * 0.018;
 
         // Движение зоны включается для сложных рыб:
         // Демоническая рыба и все, кто реже неё.

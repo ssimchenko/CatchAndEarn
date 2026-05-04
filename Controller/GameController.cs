@@ -1,5 +1,6 @@
-﻿using CatchAndEarn.Model;
-using System;
+﻿using System;
+using CatchAndEarn.Model;
+using System.Collections.Generic;
 
 namespace CatchAndEarn.Controller;
 
@@ -12,22 +13,37 @@ public class GameController
         this.player = player;
     }
 
+    public int GetCoins() => player.Coins;
+
+    public bool HasCaughtFish(string fishName) => player.CaughtFish.Contains(fishName);
+
     public string RewardFish(Fish fish)
     {
-        bool isNew = !player.HasCaught(fish.Name);
+        int reward = fish.Reward;
+        if (HasCaughtFish(fish.Name))
+            reward = Math.Max(1, reward / 10);
 
-        int reward = isNew ? fish.Reward : Math.Max(1, fish.Reward / 10);
+        // Применяем бонус монет, если куплен
+        if (player.HasUpgrade("Бонус монет"))
+            reward = (int)(reward * 1.1);
 
-        player.CatchFish(fish.Name, reward);
-
-        if (isNew)
-            return $"Пойман новый вид: {fish.Name}! +{reward} монет";
-
-        return $"Пойман {fish.Name} повторно (+{reward} монет)";
+        player.AddCoins(reward);
+        player.CaughtFish.Add(fish.Name);
+        return $"Поймана {fish.Name}! +{reward} монет";
     }
 
-    public int GetCoins()
+    public bool BuyUpgrade(Upgrade upgrade)
     {
-        return player.Coins;
+        if (upgrade.Purchased) return false;
+
+        if (player.SpendCoins(upgrade.Cost))
+        {
+            player.PurchaseUpgrade(upgrade);
+            return true;
+        }
+
+        return false;
     }
+
+    public Player GetPlayer() => player;
 }
