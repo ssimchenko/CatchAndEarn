@@ -186,9 +186,25 @@ public partial class MainWindow : Window
             {
                 SuccessZone.Background = new SolidColorBrush(Colors.LimeGreen);
 
+                string resultMessage = "";
                 if (currentFish != null)
-                    ResultText.Text = gameController.RewardFish(currentFish);
+                    resultMessage = gameController.RewardFish(currentFish);
 
+                bool trophyNetActive = gameController.GetPlayer().HasUpgrade("Трофейная сетка");
+                if (trophyNetActive)
+                {
+                    var secondFish = fishingService.TryCatchFish(gameController.GetPlayer().HasUpgrade("Золотая приманка"));
+                    if (secondFish != null)
+                    {
+                        resultMessage += "\n" + gameController.RewardFish(secondFish);
+                    }
+                    else
+                    {
+                        resultMessage += "\nТрофейная сетка: вторая рыба не клюнула";
+                    }
+                }
+
+                ResultText.Text = resultMessage;
                 UpdateCoins();
                 UpdateCollection();
             }
