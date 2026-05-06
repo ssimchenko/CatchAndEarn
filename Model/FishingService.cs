@@ -43,7 +43,7 @@ public class FishingService
         new Fish("Хранитель бездны", 1, 160),
         new Fish("Эфирный дракон-рыба", 0.8, 220),
         new Fish("Легенда морей", 0.5, 320),
-        new Fish("Абсолютный Левиафан", 0.1, 1100)
+        new Fish("Мифический Юлерн", 0.1, 1100)
     };
 
     public IReadOnlyList<Fish> GetFishesForLake(int lakeId) => lakeId == 1 ? lake1Fishes : lake2Fishes;

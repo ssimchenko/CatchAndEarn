@@ -23,11 +23,11 @@ public partial class MainWindow : Window
 
     private readonly List<Upgrade> upgrades = new()
     {
-        new Upgrade("Ключ от Озера 2", "Открывает второе озеро. Улучшения можно купить заново.", 1000),
-        new Upgrade("Широкая зона", "Увеличивает зону успеха в skillcheck в 3 раза", 10),
-        new Upgrade("Золотая приманка", "Повышает шанс поймать редкую рыбу на 5%", 10),
-        new Upgrade("Бонус монет", "Получай на 10% больше монет с каждой рыбы", 10),
-        new Upgrade("Скоростная реакция", "Замедляет движение маркера на 50%", 10),
+        new Upgrade("Ключ от Озера 2", "Открывает второе озеро. Улучшения можно купить заново.", 100),
+        new Upgrade("Широкая зона", "Увеличивает зону успеха в skillcheck в 2 раза (2.5x на Озере 2)", 10),
+        new Upgrade("Золотая приманка", "Повышает шанс поймать редкую рыбу на 3% (6% на Озере 2)", 10),
+        new Upgrade("Бонус монет", "Получай на 15% больше монет (25% на Озере 2)", 10),
+        new Upgrade("Скоростная реакция", "Замедляет движение маркера на 30% (50% на Озере 2)", 10),
         new Upgrade("Трофейная сетка", "Позволяет ловить сразу две рыбы с одного броска", 10)
     };
 
@@ -185,7 +185,7 @@ public partial class MainWindow : Window
 
             int currentLake = gameController.GetPlayer().CurrentLake;
             bool goldenLureActive = gameController.GetPlayer().HasUpgrade("Золотая приманка");
-            double lureBonus = currentLake == 1 ? 5.0 : 10.0;
+            double lureBonus = currentLake == 1 ? 3.0 : 6.0;
 
             var fish = fishingService.TryCatchFish(currentLake, goldenLureActive, lureBonus);
 
@@ -198,8 +198,8 @@ public partial class MainWindow : Window
 
             currentFish = fish;
 
-            double zoneBonus = gameController.GetPlayer().HasUpgrade("Широкая зона") ? (currentLake == 1 ? 3.0 : 5.0) : 1.0;
-            double markerSpeedBonus = gameController.GetPlayer().HasUpgrade("Скоростная реакция") ? (currentLake == 1 ? 0.5 : 0.3) : 1.0;
+            double zoneBonus = gameController.GetPlayer().HasUpgrade("Широкая зона") ? (currentLake == 1 ? 2.0 : 2.5) : 1.0;
+            double markerSpeedBonus = gameController.GetPlayer().HasUpgrade("Скоростная реакция") ? (currentLake == 1 ? 0.7 : 0.5) : 1.0;
 
             skillCheck = new SkillCheck(fish.Difficulty, zoneBonus, markerSpeedBonus);
             skillCheck.OnUpdate += UpdateSkillCheckUI;
@@ -226,7 +226,7 @@ public partial class MainWindow : Window
                 {
                     int currentLake = gameController.GetPlayer().CurrentLake;
                     bool lure = gameController.GetPlayer().HasUpgrade("Золотая приманка");
-                    double lb = currentLake == 1 ? 5.0 : 10.0;
+                    double lb = currentLake == 1 ? 3.0 : 6.0;
                     var secondFish = fishingService.TryCatchFish(currentLake, lure, lb);
                     if (secondFish != null)
                         resultMessage += "\n" + gameController.RewardFish(secondFish);

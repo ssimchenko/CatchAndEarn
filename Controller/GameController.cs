@@ -24,7 +24,10 @@ public class GameController
             reward = Math.Max(1, reward / 10);
 
         if (player.HasUpgrade("Бонус монет"))
-            reward = (int)Math.Round(reward * 1.1);
+        {
+            double multiplier = player.CurrentLake == 1 ? 1.15 : 1.25;
+            reward = (int)Math.Round(reward * multiplier);
+        }
 
         player.AddCoins(reward);
         player.CaughtFish.Add(fish.Name);
