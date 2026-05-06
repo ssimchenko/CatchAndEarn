@@ -48,9 +48,16 @@ public class FishingService
 
     public IReadOnlyList<Fish> GetFishesForLake(int lakeId) => lakeId == 1 ? lake1Fishes : lake2Fishes;
 
-    public Fish? TryCatchFish(int lakeId, bool goldenLureActive = false, double rareFishBonus = 5.0)
+    public Fish? TryCatchFish(int lakeId, bool goldenLureActive = false, double rareFishBonus = 5.0, bool excludeUltraRare = false)
     {
         var fishes = GetFishesForLake(lakeId);
+        
+        if (excludeUltraRare)
+            fishes = fishes.Where(f => f.Chance > 0.1).ToList();
+        
+        if (fishes.Count == 0)
+            return null;
+        
         if (random.NextDouble() < 0.05)
             return null;
 
@@ -62,6 +69,9 @@ public class FishingService
                 chance += rareFishBonus;
             totalChance += chance;
         }
+
+        if (totalChance == 0)
+            return null;
 
         double roll = random.NextDouble() * totalChance;
         double current = 0;

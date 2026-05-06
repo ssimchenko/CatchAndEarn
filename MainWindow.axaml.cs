@@ -20,6 +20,7 @@ public partial class MainWindow : Window
     private readonly FishingService fishingService = new();
     private Fish? currentFish;
     private readonly Random random = new();
+    private bool isTestMode = false;
 
     public MainWindow()
     {
@@ -36,19 +37,35 @@ public partial class MainWindow : Window
 
     private void StartGame_Click(object? sender, RoutedEventArgs e)
     {
+        StartGame(false);
+    }
+
+    private void StartTestGame_Click(object? sender, RoutedEventArgs e)
+    {
+        StartGame(true);
+    }
+
+    private void StartGame(bool testMode)
+    {
+        isTestMode = testMode;
+        
         if (gameController == null)
         {
             var player = new Player();
             gameController = new GameController(player);
+        }
+        else
+        {
+            gameController.GetPlayer().ClearUpgrades();
+            gameController.GetPlayer().CurrentLake = 1;
         }
 
         MenuPanel.IsVisible = false;
         GamePanel.IsVisible = true;
         WinPanel.IsVisible = false;
 
-        int lake = gameController.GetPlayer().CurrentLake;
-        LakeText.Text = lake == 1 ? "Озеро 1" : "Озеро 2";
-        ResultText.Text = "Нажми Ловить";
+        LakeText.Text = "Озеро 1";
+        ResultText.Text = testMode ? "ТЕСТОВЫЙ РЕЖИМ (дешёвые улучшения)" : "Нажми Ловить";
 
         UpdateCoins();
         UpdateCollection();
@@ -62,6 +79,7 @@ public partial class MainWindow : Window
         ShopPanel.IsVisible = false;
         WinPanel.IsVisible = false;
         MenuPanel.IsVisible = true;
+        isTestMode = false;
     }
 
     private void Exit_Click(object? sender, RoutedEventArgs e)
@@ -104,23 +122,7 @@ public partial class MainWindow : Window
         ShopList.Children.Clear();
         int currentLake = gameController != null ? gameController.GetPlayer().CurrentLake : 1;
 
-        var upgradeDefs = currentLake == 1 ? new List<(string Name, string Desc, int Cost)>
-        {
-            ("Ключ от Озера 2", "Открывает второе озеро. Улучшения можно купить заново.", 100),
-            ("Широкая зона", "Увеличивает зону успеха в skillcheck в 2 раза", 10),
-            ("Золотая приманка", "Повышает шанс поймать редкую рыбу на 3%", 10),
-            ("Бонус монет", "Получай на 15% больше монет", 10),
-            ("Скоростная реакция", "Замедляет движение маркера на 30%", 10),
-            ("Трофейная сетка", "Позволяет ловить сразу две рыбы с одного броска", 10)
-        } : new List<(string Name, string Desc, int Cost)>
-        {
-            ("Корона Победителя", "Покупка завершает игру с победой.", 100),
-            ("Широкая зона", "Увеличивает зону успеха в skillcheck в 2.5 раза", 10),
-            ("Золотая приманка", "Повышает шанс поймать редкую рыбу на 6%", 10),
-            ("Бонус монет", "Получай на 25% больше монет", 10),
-            ("Скоростная реакция", "Замедляет движение маркера на 50%", 10),
-            ("Трофейная сетка", "Позволяет ловить сразу две рыбы с одного броска", 10)
-        };
+        var upgradeDefs = GetUpgradeDefinitions(currentLake);
 
         foreach (var def in upgradeDefs)
         {
@@ -189,6 +191,50 @@ public partial class MainWindow : Window
         }
     }
 
+    private List<(string Name, string Desc, int Cost)> GetUpgradeDefinitions(int lake)
+    {
+        if (isTestMode)
+        {
+            return lake == 1 ? new List<(string, string, int)>
+            {
+                ("Ключ от Озера 2", "Открывает второе озеро. Улучшения можно купить заново.", 100),
+                ("Широкая зона", "Увеличивает зону успеха в skillcheck в 2 раза", 10),
+                ("Золотая приманка", "Повышает шанс поймать редкую рыбу на 3%", 10),
+                ("Бонус монет", "Получай на 15% больше монет", 10),
+                ("Скоростная реакция", "Замедляет движение маркера на 30%", 10),
+                ("Трофейная сетка", "Позволяет ловить сразу две рыбы с одного броска", 10)
+            } : new List<(string, string, int)>
+            {
+                ("Корона Победителя", "Покупка завершает игру с победой.", 100),
+                ("Широкая зона", "Увеличивает зону успеха в skillcheck в 2.5 раза", 10),
+                ("Золотая приманка", "Повышает шанс поймать редкую рыбу на 6%", 10),
+                ("Бонус монет", "Получай на 25% больше монет", 10),
+                ("Скоростная реакция", "Замедляет движение маркера на 50%", 10),
+                ("Трофейная сетка", "Позволяет ловить сразу две рыбы с одного броска", 10)
+            };
+        }
+        else
+        {
+            return lake == 1 ? new List<(string, string, int)>
+            {
+                ("Ключ от Озера 2", "Открывает второе озеро. Улучшения можно купить заново.", 500),
+                ("Широкая зона", "Увеличивает зону успеха в skillcheck в 2 раза", 50),
+                ("Золотая приманка", "Повышает шанс поймать редкую рыбу на 3%", 50),
+                ("Бонус монет", "Получай на 15% больше монет", 25),
+                ("Скоростная реакция", "Замедляет движение маркера на 30%", 100),
+                ("Трофейная сетка", "Позволяет ловить сразу две рыбы с одного броска", 200)
+            } : new List<(string, string, int)>
+            {
+                ("Корона Победителя", "Покупка завершает игру с победой.", 1000),
+                ("Широкая зона", "Увеличивает зону успеха в skillcheck в 2.5 раза", 50),
+                ("Золотая приманка", "Повышает шанс поймать редкую рыбу на 6%", 50),
+                ("Бонус монет", "Получай на 25% больше монет", 25),
+                ("Скоростная реакция", "Замедляет движение маркера на 50%", 100),
+                ("Трофейная сетка", "Позволяет ловить сразу две рыбы с одного броска", 200)
+            };
+        }
+    }
+
     private async void CatchButton_Click(object? sender, RoutedEventArgs e)
     {
         if (gameController == null) return;
@@ -203,7 +249,7 @@ public partial class MainWindow : Window
             bool goldenLureActive = gameController.GetPlayer().HasUpgrade("Золотая приманка");
             double lureBonus = currentLake == 1 ? 3.0 : 6.0;
 
-            var fish = fishingService.TryCatchFish(currentLake, goldenLureActive, lureBonus);
+            var fish = fishingService.TryCatchFish(currentLake, goldenLureActive, lureBonus, excludeUltraRare: false);
 
             if (fish == null)
             {
@@ -243,7 +289,7 @@ public partial class MainWindow : Window
                     int currentLake = gameController.GetPlayer().CurrentLake;
                     bool lure = gameController.GetPlayer().HasUpgrade("Золотая приманка");
                     double lb = currentLake == 1 ? 3.0 : 6.0;
-                    var secondFish = fishingService.TryCatchFish(currentLake, lure, lb);
+                    var secondFish = fishingService.TryCatchFish(currentLake, lure, lb, excludeUltraRare: true);
                     if (secondFish != null)
                         resultMessage += "\n" + gameController.RewardFish(secondFish);
                     else

@@ -36,6 +36,15 @@
                                    Width="300"/>
                         </Button>
 
+                        <Button Click="StartTestGame_Click"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                HorizontalAlignment="Center">
+                            <TextBlock Text="ТЕСТ (быстрые цены)"
+                                       Foreground="Yellow"
+                                       FontSize="18"/>
+                        </Button>
+
                         <Button Click="Exit_Click"
                                 Background="Transparent"
                                 BorderThickness="0"
