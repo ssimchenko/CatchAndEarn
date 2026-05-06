@@ -6,6 +6,7 @@ using CatchAndEarn.Controller;
 using CatchAndEarn.Model;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -104,7 +105,7 @@ public partial class MainWindow : Window
         text.AppendLine($"--- Озеро {lake} ---");
         foreach (var fish in fishes)
         {
-            string status = gameController.HasCaughtFish(fish.Name) ? "✓" : "✕";
+            string status = gameController.HasCaughtFish(fish.Name) ? "✓" : "";
             text.AppendLine($"{status} {fish.Name} — {fish.Chance:0.#}%");
         }
 
@@ -124,7 +125,10 @@ public partial class MainWindow : Window
 
         var upgradeDefs = GetUpgradeDefinitions(currentLake);
 
-        foreach (var def in upgradeDefs)
+        // Сортировка от дешевых к дорогим
+        var sortedDefs = upgradeDefs.OrderBy(x => x.Cost).ToList();
+
+        foreach (var def in sortedDefs)
         {
             var panel = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 10 };
 
