@@ -8,7 +8,7 @@ public class FishingService
 {
     private readonly Random random = new();
 
-    private readonly List<Fish> fishes = new()
+    private readonly List<Fish> lake1Fishes = new()
     {
         new Fish("Карась", 25, 5),
         new Fish("Окунь", 18, 8),
@@ -27,13 +27,30 @@ public class FishingService
         new Fish("Легендарная Емельяновка", 0.1, 1000)
     };
 
-    public IReadOnlyList<Fish> GetAllFishes()
+    private readonly List<Fish> lake2Fishes = new()
     {
-        return fishes;
-    }
+        new Fish("Призрачный пескарь", 25, 6),
+        new Fish("Лавовый окунь", 18, 10),
+        new Fish("Ледяной сом", 13, 14),
+        new Fish("Глубинный угорь", 10, 18),
+        new Fish("Электрический скат", 8, 25),
+        new Fish("Кристаллическая форель", 6, 35),
+        new Fish("Кровавая пиранья", 5, 45),
+        new Fish("Теневой лосось", 4, 55),
+        new Fish("Астральная медуза", 3, 75),
+        new Fish("Космический карп", 2, 95),
+        new Fish("Звёздная акула", 1.5, 130),
+        new Fish("Хранитель бездны", 1, 160),
+        new Fish("Эфирный дракон-рыба", 0.8, 220),
+        new Fish("Легенда морей", 0.5, 320),
+        new Fish("Абсолютный Левиафан", 0.1, 1100)
+    };
 
-    public Fish? TryCatchFish(bool goldenLureActive = false, double rareFishBonus = 5.0)
+    public IReadOnlyList<Fish> GetFishesForLake(int lakeId) => lakeId == 1 ? lake1Fishes : lake2Fishes;
+
+    public Fish? TryCatchFish(int lakeId, bool goldenLureActive = false, double rareFishBonus = 5.0)
     {
+        var fishes = GetFishesForLake(lakeId);
         if (random.NextDouble() < 0.05)
             return null;
 

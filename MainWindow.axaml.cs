@@ -87,8 +87,12 @@ public partial class MainWindow : Window
     {
         if (gameController == null) return;
 
+        int lake = gameController.GetPlayer().CurrentLake;
+        var fishes = fishingService.GetFishesForLake(lake);
+
         var text = new StringBuilder();
-        foreach (var fish in fishingService.GetAllFishes())
+        text.AppendLine($"--- Озеро {lake} ---");
+        foreach (var fish in fishes)
         {
             string status = gameController.HasCaughtFish(fish.Name) ? "✓" : "✕";
             text.AppendLine($"{status} {fish.Name} — {fish.Chance:0.#}%");
@@ -106,7 +110,6 @@ public partial class MainWindow : Window
     private void UpdateShopUI()
     {
         ShopList.Children.Clear();
-
         int currentLake = gameController != null ? gameController.GetPlayer().CurrentLake : 1;
 
         foreach (var upgrade in upgrades)
@@ -115,9 +118,7 @@ public partial class MainWindow : Window
 
             string displayText = $"{upgrade.Name} — {upgrade.Description} — {upgrade.Cost} монет";
             if (upgrade.Name == "Ключ от Озера 2" && currentLake >= 2)
-            {
                 displayText = $"{upgrade.Name} — Уже открыто";
-            }
 
             var info = new TextBlock
             {
@@ -141,7 +142,6 @@ public partial class MainWindow : Window
                 if (upgrade.Name == "Ключ от Озера 2")
                 {
                     if (currentLake >= 2) return;
-
                     if (gameController.GetPlayer().SpendCoins(upgrade.Cost))
                     {
                         upgrade.Purchased = true;
@@ -154,6 +154,7 @@ public partial class MainWindow : Window
 
                         UpdateCoins();
                         UpdateShopUI();
+                        UpdateCollection();
                     }
                 }
                 else
@@ -168,7 +169,6 @@ public partial class MainWindow : Window
 
             panel.Children.Add(info);
             panel.Children.Add(button);
-
             ShopList.Children.Add(panel);
         }
     }
@@ -181,12 +181,13 @@ public partial class MainWindow : Window
         {
             state = GameState.Waiting;
             ResultText.Text = "Ожидание поклёвки...";
-
             await Task.Delay(random.Next(1000, 2000));
 
+            int currentLake = gameController.GetPlayer().CurrentLake;
             bool goldenLureActive = gameController.GetPlayer().HasUpgrade("Золотая приманка");
-            double lureBonus = gameController.GetPlayer().CurrentLake == 1 ? 5.0 : 10.0;
-            var fish = fishingService.TryCatchFish(goldenLureActive, lureBonus);
+            double lureBonus = currentLake == 1 ? 5.0 : 10.0;
+
+            var fish = fishingService.TryCatchFish(currentLake, goldenLureActive, lureBonus);
 
             if (fish == null)
             {
@@ -197,15 +198,8 @@ public partial class MainWindow : Window
 
             currentFish = fish;
 
-            int currentLake = gameController.GetPlayer().CurrentLake;
-
-            double zoneBonus = 1.0;
-            if (gameController.GetPlayer().HasUpgrade("Широкая зона"))
-                zoneBonus = currentLake == 1 ? 3.0 : 5.0;
-
-            double markerSpeedBonus = 1.0;
-            if (gameController.GetPlayer().HasUpgrade("Скоростная реакция"))
-                markerSpeedBonus = currentLake == 1 ? 0.5 : 0.3;
+            double zoneBonus = gameController.GetPlayer().HasUpgrade("Широкая зона") ? (currentLake == 1 ? 3.0 : 5.0) : 1.0;
+            double markerSpeedBonus = gameController.GetPlayer().HasUpgrade("Скоростная реакция") ? (currentLake == 1 ? 0.5 : 0.3) : 1.0;
 
             skillCheck = new SkillCheck(fish.Difficulty, zoneBonus, markerSpeedBonus);
             skillCheck.OnUpdate += UpdateSkillCheckUI;
@@ -223,7 +217,6 @@ public partial class MainWindow : Window
             if (success)
             {
                 SuccessZone.Background = new SolidColorBrush(Colors.LimeGreen);
-
                 string resultMessage = "";
                 if (currentFish != null)
                     resultMessage = gameController.RewardFish(currentFish);
@@ -231,17 +224,14 @@ public partial class MainWindow : Window
                 bool trophyNetActive = gameController.GetPlayer().HasUpgrade("Трофейная сетка");
                 if (trophyNetActive)
                 {
+                    int currentLake = gameController.GetPlayer().CurrentLake;
                     bool lure = gameController.GetPlayer().HasUpgrade("Золотая приманка");
-                    double lb = gameController.GetPlayer().CurrentLake == 1 ? 5.0 : 10.0;
-                    var secondFish = fishingService.TryCatchFish(lure, lb);
+                    double lb = currentLake == 1 ? 5.0 : 10.0;
+                    var secondFish = fishingService.TryCatchFish(currentLake, lure, lb);
                     if (secondFish != null)
-                    {
                         resultMessage += "\n" + gameController.RewardFish(secondFish);
-                    }
                     else
-                    {
                         resultMessage += "\nТрофейная сетка: вторая рыба не клюнула";
-                    }
                 }
 
                 ResultText.Text = resultMessage;
@@ -257,7 +247,6 @@ public partial class MainWindow : Window
             await Task.Delay(600);
             SkillCheckPanel.IsVisible = false;
             SuccessZone.Background = new SolidColorBrush(Colors.Green);
-
             await Task.Delay(200);
             state = GameState.Idle;
             ResultText.Text = "Нажми Ловить";
@@ -267,14 +256,10 @@ public partial class MainWindow : Window
     private void UpdateSkillCheckUI()
     {
         if (skillCheck == null) return;
-
         double width = SkillCheckPanel.Bounds.Width;
-
         Marker.Margin = new Thickness(skillCheck.Position * width, 0, 0, 0);
-
         double zoneWidth = (skillCheck.ZoneEnd - skillCheck.ZoneStart) * width;
         double zoneStart = skillCheck.ZoneStart * width;
-
         SuccessZone.Width = zoneWidth;
         SuccessZone.Margin = new Thickness(zoneStart, 0, 0, 0);
     }
