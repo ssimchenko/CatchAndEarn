@@ -183,6 +183,43 @@
 
             </Grid>
 
+            <!-- Экран победы -->
+            <Grid x:Name="WinPanel"
+                  IsVisible="False">
+
+                <Rectangle Fill="#aa000000"/>
+
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="20"
+                            Width="500">
+
+                    <TextBlock Text="ПОБЕДА!"
+                               Foreground="Gold"
+                               FontSize="48"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"/>
+
+                    <TextBlock Text="Вы завоевали Корону Победителя!"
+                               Foreground="White"
+                               FontSize="20"
+                               TextAlignment="Center"/>
+
+                    <TextBlock x:Name="WinCoinsText"
+                               Text="Монеты: 0"
+                               Foreground="#8ecae6"
+                               FontSize="24"
+                               HorizontalAlignment="Center"/>
+
+                    <Button Content="В главное меню"
+                            Width="200"
+                            Height="45"
+                            Click="BackToMenu_Click"/>
+
+                </StackPanel>
+
+            </Grid>
+
         </Grid>
 
     </Viewbox>

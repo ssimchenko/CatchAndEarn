@@ -34,13 +34,13 @@ public class GameController
         return $"Поймана {fish.Name}! +{reward} монет";
     }
 
-    public bool BuyUpgrade(Upgrade upgrade)
+    public bool BuyUpgrade(string upgradeName, int cost)
     {
-        if (upgrade.Purchased) return false;
+        if (player.HasUpgrade(upgradeName)) return false;
 
-        if (player.SpendCoins(upgrade.Cost))
+        if (player.SpendCoins(cost))
         {
-            player.PurchaseUpgrade(upgrade);
+            player.PurchaseUpgrade(upgradeName);
             return true;
         }
 

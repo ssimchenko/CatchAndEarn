@@ -21,16 +21,6 @@ public partial class MainWindow : Window
     private Fish? currentFish;
     private readonly Random random = new();
 
-    private readonly List<Upgrade> upgrades = new()
-    {
-        new Upgrade("Ключ от Озера 2", "Открывает второе озеро. Улучшения можно купить заново.", 100),
-        new Upgrade("Широкая зона", "Увеличивает зону успеха в skillcheck в 2 раза (2.5x на Озере 2)", 10),
-        new Upgrade("Золотая приманка", "Повышает шанс поймать редкую рыбу на 3% (6% на Озере 2)", 10),
-        new Upgrade("Бонус монет", "Получай на 15% больше монет (25% на Озере 2)", 10),
-        new Upgrade("Скоростная реакция", "Замедляет движение маркера на 30% (50% на Озере 2)", 10),
-        new Upgrade("Трофейная сетка", "Позволяет ловить сразу две рыбы с одного броска", 10)
-    };
-
     public MainWindow()
     {
         InitializeComponent();
@@ -54,6 +44,7 @@ public partial class MainWindow : Window
 
         MenuPanel.IsVisible = false;
         GamePanel.IsVisible = true;
+        WinPanel.IsVisible = false;
 
         int lake = gameController.GetPlayer().CurrentLake;
         LakeText.Text = lake == 1 ? "Озеро 1" : "Озеро 2";
@@ -67,9 +58,10 @@ public partial class MainWindow : Window
     private void BackToMenu_Click(object? sender, RoutedEventArgs e)
     {
         GamePanel.IsVisible = false;
-        MenuPanel.IsVisible = true;
         CollectionPanel.IsVisible = false;
         ShopPanel.IsVisible = false;
+        WinPanel.IsVisible = false;
+        MenuPanel.IsVisible = true;
     }
 
     private void Exit_Click(object? sender, RoutedEventArgs e)
@@ -112,13 +104,34 @@ public partial class MainWindow : Window
         ShopList.Children.Clear();
         int currentLake = gameController != null ? gameController.GetPlayer().CurrentLake : 1;
 
-        foreach (var upgrade in upgrades)
+        var upgradeDefs = currentLake == 1 ? new List<(string Name, string Desc, int Cost)>
+        {
+            ("Ключ от Озера 2", "Открывает второе озеро. Улучшения можно купить заново.", 100),
+            ("Широкая зона", "Увеличивает зону успеха в skillcheck в 2 раза", 10),
+            ("Золотая приманка", "Повышает шанс поймать редкую рыбу на 3%", 10),
+            ("Бонус монет", "Получай на 15% больше монет", 10),
+            ("Скоростная реакция", "Замедляет движение маркера на 30%", 10),
+            ("Трофейная сетка", "Позволяет ловить сразу две рыбы с одного броска", 10)
+        } : new List<(string Name, string Desc, int Cost)>
+        {
+            ("Корона Победителя", "Покупка завершает игру с победой.", 100),
+            ("Широкая зона", "Увеличивает зону успеха в skillcheck в 2.5 раза", 10),
+            ("Золотая приманка", "Повышает шанс поймать редкую рыбу на 6%", 10),
+            ("Бонус монет", "Получай на 25% больше монет", 10),
+            ("Скоростная реакция", "Замедляет движение маркера на 50%", 10),
+            ("Трофейная сетка", "Позволяет ловить сразу две рыбы с одного броска", 10)
+        };
+
+        foreach (var def in upgradeDefs)
         {
             var panel = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 10 };
 
-            string displayText = $"{upgrade.Name} — {upgrade.Description} — {upgrade.Cost} монет";
-            if (upgrade.Name == "Ключ от Озера 2" && currentLake >= 2)
-                displayText = $"{upgrade.Name} — Уже открыто";
+            bool isPurchased = gameController != null && gameController.GetPlayer().HasUpgrade(def.Name);
+            bool isDisabled = isPurchased || (def.Name == "Ключ от Озера 2" && currentLake >= 2);
+
+            string displayText = $"{def.Name} — {def.Desc} — {def.Cost} монет";
+            if (def.Name == "Ключ от Озера 2" && currentLake >= 2)
+                displayText = $"{def.Name} — Уже открыто";
 
             var info = new TextBlock
             {
@@ -130,8 +143,8 @@ public partial class MainWindow : Window
 
             var button = new Button
             {
-                Content = upgrade.Purchased ? "Куплено" : "Купить",
-                IsEnabled = !(upgrade.Purchased || (upgrade.Name == "Ключ от Озера 2" && currentLake >= 2)),
+                Content = isPurchased ? "Куплено" : "Купить",
+                IsEnabled = !isDisabled,
                 Width = 100
             };
 
@@ -139,27 +152,30 @@ public partial class MainWindow : Window
             {
                 if (gameController == null) return;
 
-                if (upgrade.Name == "Ключ от Озера 2")
+                if (def.Name == "Ключ от Озера 2")
                 {
-                    if (currentLake >= 2) return;
-                    if (gameController.GetPlayer().SpendCoins(upgrade.Cost))
+                    if (gameController.GetPlayer().SpendCoins(def.Cost))
                     {
-                        upgrade.Purchased = true;
                         gameController.GetPlayer().CurrentLake = 2;
+                        gameController.GetPlayer().ClearUpgrades();
                         LakeText.Text = "Озеро 2";
-                        ResultText.Text = "Добро пожаловать в Озеро 2! Улучшения сброшены и доступны для покупки заново.";
-
-                        foreach (var u in upgrades)
-                            if (u.Name != "Ключ от Озера 2") u.Purchased = false;
-
+                        ResultText.Text = "Добро пожаловать в Озеро 2! Улучшения сброшены.";
                         UpdateCoins();
                         UpdateShopUI();
                         UpdateCollection();
                     }
                 }
+                else if (def.Name == "Корона Победителя")
+                {
+                    if (gameController.GetPlayer().SpendCoins(def.Cost))
+                    {
+                        gameController.GetPlayer().PurchaseUpgrade(def.Name);
+                        ShowWinScreen();
+                    }
+                }
                 else
                 {
-                    if (gameController.BuyUpgrade(upgrade))
+                    if (gameController.BuyUpgrade(def.Name, def.Cost))
                     {
                         UpdateCoins();
                         UpdateShopUI();
@@ -268,5 +284,14 @@ public partial class MainWindow : Window
     {
         if (gameController == null) return;
         CoinsText.Text = $"Монеты: {gameController.GetCoins()}";
+    }
+
+    private void ShowWinScreen()
+    {
+        GamePanel.IsVisible = false;
+        ShopPanel.IsVisible = false;
+        CollectionPanel.IsVisible = false;
+        WinCoinsText.Text = $"Итоговые монеты: {gameController.GetCoins()}";
+        WinPanel.IsVisible = true;
     }
 }

@@ -6,7 +6,7 @@ public class Player
 {
     public int Coins { get; private set; } = 0;
     public HashSet<string> CaughtFish { get; private set; } = new();
-    public List<Upgrade> PurchasedUpgrades { get; private set; } = new();
+    public HashSet<string> PurchasedUpgrades { get; private set; } = new();
     public int CurrentLake { get; set; } = 1;
 
     public void AddCoins(int amount) => Coins += amount;
@@ -21,17 +21,18 @@ public class Player
         return false;
     }
 
-    public void PurchaseUpgrade(Upgrade upgrade)
+    public void PurchaseUpgrade(string upgradeName)
     {
-        if (!PurchasedUpgrades.Contains(upgrade))
-        {
-            PurchasedUpgrades.Add(upgrade);
-            upgrade.Purchased = true;
-        }
+        PurchasedUpgrades.Add(upgradeName);
+    }
+
+    public void ClearUpgrades()
+    {
+        PurchasedUpgrades.Clear();
     }
 
     public bool HasUpgrade(string upgradeName)
     {
-        return PurchasedUpgrades.Exists(u => u.Name == upgradeName);
+        return PurchasedUpgrades.Contains(upgradeName);
     }
 }
