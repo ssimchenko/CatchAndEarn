@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CatchAndEarn;
+namespace CatchAndEarn.View;
 
 public partial class MainWindow : Window
 {
