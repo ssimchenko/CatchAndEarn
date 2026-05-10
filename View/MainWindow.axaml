@@ -1,0 +1,515 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="CatchAndEarn.View.MainWindow"
+        Title="Catch &amp; Earn"
+        Width="1280"
+        Height="720"
+        Background="Black">
+
+	<Window.Styles>
+
+		<Style Selector="Button.MenuActionButton">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderBrush" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Opacity" Value="0.94"/>
+			<Setter Property="RenderTransformOrigin" Value="50%,50%"/>
+			<Setter Property="RenderTransform" Value="scale(1)"/>
+			<Setter Property="Template">
+				<ControlTemplate>
+					<ContentPresenter Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+				</ControlTemplate>
+			</Setter>
+			<Setter Property="Transitions">
+				<Transitions>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.12"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.12"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="Button.MenuActionButton:pointerover">
+			<Setter Property="Opacity" Value="1"/>
+			<Setter Property="RenderTransform" Value="translate(8px,0px) scale(1.04)"/>
+		</Style>
+
+		<Style Selector="Button.MenuActionButton:pressed">
+			<Setter Property="Opacity" Value="1"/>
+			<Setter Property="RenderTransform" Value="translate(3px,0px) scale(0.98)"/>
+		</Style>
+
+		<Style Selector="Button.ImageButton">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderBrush" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Template">
+				<ControlTemplate>
+					<ContentPresenter Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+				</ControlTemplate>
+			</Setter>
+		</Style>
+
+		<Style Selector="Button.WinButton">
+			<Setter Property="Background" Value="#7A5635"/>
+			<Setter Property="BorderBrush" Value="#B48A5A"/>
+			<Setter Property="BorderThickness" Value="2"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="Padding" Value="14,8"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="RenderTransformOrigin" Value="50%,50%"/>
+			<Setter Property="RenderTransform" Value="scale(1)"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.12"/>
+					<BrushTransition Property="Background" Duration="0:0:0.12"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="Button.WinButton:pointerover">
+			<Setter Property="Background" Value="#8B6540"/>
+			<Setter Property="RenderTransform" Value="scale(1.04)"/>
+		</Style>
+
+		<Style Selector="Button.WinButton:pressed">
+			<Setter Property="RenderTransform" Value="scale(0.98)"/>
+		</Style>
+
+	</Window.Styles>
+
+	<Viewbox Stretch="Uniform">
+
+		<Grid Width="1280" Height="720">
+
+			<!-- ГЛАВНОЕ МЕНЮ -->
+			<Grid x:Name="MenuPanel">
+
+				<Image Source="avares://CatchAndEarn/Assets/background.png"
+                       Stretch="Fill"/>
+
+				<Grid HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Width="600">
+
+					<StackPanel HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="15">
+
+						<Image Source="avares://CatchAndEarn/Assets/title.png"
+                               Width="600"
+                               HorizontalAlignment="Center"
+                               Margin="0,-80,0,20"/>
+
+						<Button Classes="ImageButton"
+                                Click="StartGame_Click"
+                                HorizontalAlignment="Center">
+							<Image Source="avares://CatchAndEarn/Assets/playbutton.png"
+                                   Width="300"/>
+						</Button>
+
+						<Button Classes="ImageButton"
+                                Click="StartTestGame_Click"
+                                HorizontalAlignment="Center">
+							<TextBlock Text="ТЕСТ (быстрые цены)"
+                                       Foreground="Yellow"
+                                       FontSize="18"/>
+						</Button>
+
+						<Button Classes="ImageButton"
+                                Click="Exit_Click"
+                                HorizontalAlignment="Center">
+							<Image Source="avares://CatchAndEarn/Assets/exitbutton.png"
+                                   Width="300"/>
+						</Button>
+
+					</StackPanel>
+
+				</Grid>
+
+			</Grid>
+
+			<!-- ИГРОВОЙ ЭКРАН -->
+			<Grid x:Name="GamePanel"
+                  IsVisible="False"
+                  Margin="10">
+
+				<Image x:Name="Lake1Background"
+                       Source="avares://CatchAndEarn/Assets/lake_background.png"
+                       Stretch="Fill"/>
+
+				<Image x:Name="Lake2Background"
+                       Source="avares://CatchAndEarn/Assets/2background.png"
+                       Stretch="Fill"
+                       IsVisible="False"/>
+
+				<Image Source="avares://CatchAndEarn/Assets/left_panel.png"
+                       Width="340"
+                       Stretch="Fill"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Stretch"/>
+
+				<Border BorderBrush="#2f3b4a"
+                        BorderThickness="2"/>
+
+				<Image x:Name="Lake1Sign"
+                       Source="avares://CatchAndEarn/Assets/location_sign.png"
+                       Width="300"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"
+                       Margin="20,15,0,0"/>
+
+				<Image x:Name="Lake2Sign"
+                       Source="avares://CatchAndEarn/Assets/2lake.png"
+                       Width="300"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"
+                       Margin="20,15,0,0"
+                       IsVisible="False"/>
+
+				<TextBlock x:Name="LakeText"
+                           Text="Глубокий пруд"
+                           IsVisible="False"/>
+
+				<Image Source="avares://CatchAndEarn/Assets/player.png"
+                       Width="185"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"
+                       Margin="460,145,0,0"/>
+
+				<StackPanel HorizontalAlignment="Left"
+                            VerticalAlignment="Top"
+                            Margin="23,145,0,0"
+                            Spacing="18">
+
+					<Button Classes="MenuActionButton"
+                            Click="ToggleCollection_Click">
+						<Image Source="avares://CatchAndEarn/Assets/collection_button.png"
+                               Width="290"/>
+					</Button>
+
+					<Button Classes="MenuActionButton"
+                            Click="ToggleShop_Click">
+						<Image Source="avares://CatchAndEarn/Assets/shop_button.png"
+                               Width="290"/>
+					</Button>
+
+					<Button Classes="MenuActionButton"
+                            Click="BackToMenu_Click">
+						<Image Source="avares://CatchAndEarn/Assets/menu_button.png"
+                               Width="290"/>
+					</Button>
+
+				</StackPanel>
+
+				<!-- Монеты -->
+				<StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Bottom"
+                            Margin="80,0,0,50"
+                            Spacing="8">
+
+					<TextBlock Text="Монеты:"
+                               Foreground="#f5e6b3"
+                               FontSize="26"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+
+					<TextBlock x:Name="CoinsText"
+                               Text="0"
+                               Foreground="#ffd45c"
+                               FontSize="30"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+
+					<Image Source="avares://CatchAndEarn/Assets/coin.png"
+                           Width="36"
+                           Height="36"
+                           VerticalAlignment="Center"/>
+
+				</StackPanel>
+
+				<StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Bottom"
+                            Margin="0,0,0,25"
+                            Spacing="8">
+
+					<TextBlock x:Name="ResultText"
+                               Text=""
+                               Foreground="#fff2cf"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"/>
+
+					<Grid x:Name="SkillCheckPanel"
+                          IsVisible="False"
+                          Width="430"
+                          Height="38"
+                          HorizontalAlignment="Center"
+                          ClipToBounds="True">
+
+						<Border Background="#3A2618"
+                                BorderBrush="#B48A5A"
+                                BorderThickness="3"
+                                CornerRadius="10"/>
+
+						<Border Margin="7"
+                                Background="#1E140D"
+                                BorderBrush="#6D4D32"
+                                BorderThickness="2"
+                                CornerRadius="7"/>
+
+						<Border x:Name="SuccessZone"
+                                Background="#5EB85E"
+                                BorderBrush="#BFF2A0"
+                                BorderThickness="2"
+                                CornerRadius="6"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                Height="24"
+                                Width="80"
+                                Margin="7,0,0,0"/>
+
+						<Border x:Name="Marker"
+                                Background="#D94B43"
+                                BorderBrush="#FFF1C9"
+                                BorderThickness="2"
+                                Width="8"
+                                Height="34"
+                                CornerRadius="4"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"/>
+
+					</Grid>
+
+					<Button x:Name="CatchButton"
+                            Classes="ImageButton"
+                            Click="CatchButton_Click"
+                            HorizontalAlignment="Center">
+						<Image Source="avares://CatchAndEarn/Assets/catch_button.png"
+                               Width="330"/>
+					</Button>
+
+				</StackPanel>
+
+				<Border x:Name="CollectionPanel"
+                        IsVisible="False"
+                        Width="390"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Stretch"
+                        Background="#D11E1612"
+                        BorderBrush="#8C6743"
+                        BorderThickness="3"
+                        CornerRadius="10"
+                        Padding="14"
+                        Margin="0,20,20,20">
+
+					<StackPanel Spacing="12">
+
+						<Border Background="#7A5635"
+                                BorderBrush="#B48A5A"
+                                BorderThickness="2"
+                                CornerRadius="8"
+                                Padding="10">
+
+							<TextBlock Text="Коллекция рыб"
+                                       Foreground="#FFF1C9"
+                                       FontSize="22"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"/>
+						</Border>
+
+						<Border Background="#A62A2018"
+                                BorderBrush="#6D4D32"
+                                BorderThickness="2"
+                                CornerRadius="8"
+                                Padding="12">
+
+							<ScrollViewer Height="500"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+
+								<TextBlock x:Name="CollectionText"
+                                           Text=""
+                                           Foreground="#F8E9C8"
+                                           FontSize="15"
+                                           FontWeight="SemiBold"
+                                           LineHeight="22"
+                                           TextWrapping="Wrap"/>
+
+							</ScrollViewer>
+
+						</Border>
+
+					</StackPanel>
+
+				</Border>
+
+				<Border x:Name="ShopPanel"
+                        IsVisible="False"
+                        Width="500"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Stretch"
+                        Background="#D11E1612"
+                        BorderBrush="#8C6743"
+                        BorderThickness="3"
+                        CornerRadius="10"
+                        Padding="12"
+                        Margin="0,20,20,20">
+
+					<StackPanel Spacing="10">
+
+						<Border Background="#7A5635"
+                                BorderBrush="#B48A5A"
+                                BorderThickness="2"
+                                CornerRadius="8"
+                                Padding="10">
+
+							<TextBlock Text="Магазин улучшений"
+                                       Foreground="#FFF1C9"
+                                       FontSize="22"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"/>
+						</Border>
+
+						<Border Background="#A62A2018"
+                                BorderBrush="#6D4D32"
+                                BorderThickness="2"
+                                CornerRadius="8"
+                                Padding="10">
+
+							<ScrollViewer Height="495"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+
+								<StackPanel x:Name="ShopList"
+                                            Spacing="8"/>
+
+							</ScrollViewer>
+
+						</Border>
+
+					</StackPanel>
+
+				</Border>
+
+			</Grid>
+
+			<!-- ЭКРАН ПОБЕДЫ -->
+			<Grid x:Name="WinPanel"
+                  IsVisible="False">
+
+				<Border Background="#C9000000"/>
+
+				<Border Width="560"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Background="#D11E1612"
+                        BorderBrush="#D6A85F"
+                        BorderThickness="4"
+                        CornerRadius="16"
+                        Padding="18">
+
+					<StackPanel Spacing="16">
+
+						<Border Background="#7A5635"
+                                BorderBrush="#E3B76B"
+                                BorderThickness="2"
+                                CornerRadius="10"
+                                Padding="14">
+
+							<TextBlock Text="ПОБЕДА!"
+                                       Foreground="#FFD45C"
+                                       FontSize="52"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"/>
+						</Border>
+
+						<Border Background="#A62A2018"
+                                BorderBrush="#8C6743"
+                                BorderThickness="2"
+                                CornerRadius="10"
+                                Padding="18">
+
+							<StackPanel Spacing="14">
+
+								<TextBlock Text="Ты завоевал Корону Победителя"
+                                           Foreground="#FFF1C9"
+                                           FontSize="24"
+                                           FontWeight="Bold"
+                                           TextAlignment="Center"
+                                           TextWrapping="Wrap"/>
+
+								<TextBlock Text="Рыбак прошёл путь от Глубокого пруда до Моря C# и доказал, что достоин звания легенды."
+                                           Foreground="#F8E9C8"
+                                           FontSize="17"
+                                           FontWeight="SemiBold"
+                                           TextAlignment="Center"
+                                           LineHeight="25"
+                                           TextWrapping="Wrap"/>
+
+								<Border Background="#3A2618"
+                                        BorderBrush="#B48A5A"
+                                        BorderThickness="2"
+                                        CornerRadius="8"
+                                        Padding="12">
+
+									<StackPanel Orientation="Horizontal"
+                                                HorizontalAlignment="Center"
+                                                Spacing="10">
+
+										<TextBlock x:Name="WinCoinsText"
+                                                   Text="Итоговые монеты: 0"
+                                                   Foreground="#FFD45C"
+                                                   FontSize="22"
+                                                   FontWeight="Bold"
+                                                   VerticalAlignment="Center"/>
+
+										<Image Source="avares://CatchAndEarn/Assets/coin.png"
+                                               Width="30"
+                                               Height="30"
+                                               VerticalAlignment="Center"/>
+
+									</StackPanel>
+
+								</Border>
+
+							</StackPanel>
+
+						</Border>
+
+						<Button Classes="WinButton"
+                                Width="240"
+                                HorizontalAlignment="Center"
+                                Click="BackToMenu_Click">
+
+							<TextBlock Text="В главное меню"
+                                       Foreground="#FFF1C9"
+                                       FontSize="19"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+
+						</Button>
+
+					</StackPanel>
+
+				</Border>
+
+			</Grid>
+
+		</Grid>
+
+	</Viewbox>
+
+</Window>

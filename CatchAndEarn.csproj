@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Assets\2background.png" />
+    <None Remove="Assets\2lake.png" />
+    <None Remove="Assets\background.png" />
+    <None Remove="Assets\catch_button.png" />
+    <None Remove="Assets\coin.png" />
+    <None Remove="Assets\collection_button.png" />
+    <None Remove="Assets\exitbutton.png" />
+    <None Remove="Assets\float.png" />
+    <None Remove="Assets\lake_background.png" />
+    <None Remove="Assets\left_panel.png" />
+    <None Remove="Assets\location_sign.png" />
+    <None Remove="Assets\menu_button.png" />
+    <None Remove="Assets\playbutton.png" />
+    <None Remove="Assets\player.png" />
+    <None Remove="Assets\shop_button.png" />
+    <None Remove="Assets\title.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.0.1" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.0.1" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.1" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.1" />
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.1">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\2background.png" />
+    <AvaloniaResource Include="Assets\2lake.png" />
+    <AvaloniaResource Include="Assets\background.png" />
+    <AvaloniaResource Include="Assets\catch_button.png" />
+    <AvaloniaResource Include="Assets\coin.png" />
+    <AvaloniaResource Include="Assets\collection_button.png" />
+    <AvaloniaResource Include="Assets\exitbutton.png" />
+    <AvaloniaResource Include="Assets\float.png" />
+    <AvaloniaResource Include="Assets\lake_background.png" />
+    <AvaloniaResource Include="Assets\left_panel.png" />
+    <AvaloniaResource Include="Assets\location_sign.png" />
+    <AvaloniaResource Include="Assets\menu_button.png" />
+    <AvaloniaResource Include="Assets\playbutton.png" />
+    <AvaloniaResource Include="Assets\player.png" />
+    <AvaloniaResource Include="Assets\shop_button.png" />
+    <AvaloniaResource Include="Assets\title.png" />
+  </ItemGroup>
+</Project>
