@@ -27,8 +27,13 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        this.Closing += MainWindow_Closing;
     }
 
+    private void MainWindow_Closing(object? sender, Avalonia.Controls.WindowClosingEventArgs e)
+    {
+        AudioService.StopAll();
+    }
     private enum GameState
     {
         Idle,
@@ -39,15 +44,17 @@ public partial class MainWindow : Window
 
     private void StartGame_Click(object? sender, RoutedEventArgs e)
     {
+        _ = AudioService.PlayAsync("click.wav");
         StartGame(false);
     }
 
     private void StartTestGame_Click(object? sender, RoutedEventArgs e)
     {
+        _ = AudioService.PlayAsync("click.wav");
         StartGame(true);
     }
 
-    private void StartGame(bool testMode)
+    private async void StartGame(bool testMode)
     {
         isTestMode = testMode;
 
@@ -76,10 +83,15 @@ public partial class MainWindow : Window
         UpdateCoins();
         UpdateCollection();
         UpdateShopUI();
+
+        // Запускаем фоновую музыку
+        await AudioService.PlayBackgroundMusicAsync("background_music_calm.wav");
     }
 
     private void BackToMenu_Click(object? sender, RoutedEventArgs e)
     {
+        _ = AudioService.PlayAsync("click.wav");
+        
         GamePanel.IsVisible = false;
         CollectionPanel.IsVisible = false;
         ShopPanel.IsVisible = false;
@@ -97,15 +109,21 @@ public partial class MainWindow : Window
         ResultText.Text = "";
         state = GameState.Idle;
         isTestMode = false;
+
+        // Останавливаем фоновую музыку
+        AudioService.StopBackgroundMusic();
     }
 
     private void Exit_Click(object? sender, RoutedEventArgs e)
     {
+        _ = AudioService.PlayAsync("click.wav");
         Close();
     }
 
     private void ToggleCollection_Click(object? sender, RoutedEventArgs e)
     {
+        _ = AudioService.PlayAsync("click.wav");
+        
         if (gameController == null)
             return;
 
@@ -119,6 +137,8 @@ public partial class MainWindow : Window
 
     private void ToggleShop_Click(object? sender, RoutedEventArgs e)
     {
+        _ = AudioService.PlayAsync("click.wav");
+        
         if (gameController == null)
             return;
 
@@ -357,6 +377,8 @@ public partial class MainWindow : Window
                 return;
             }
 
+            _ = AudioService.PlayAsync("unlock_lake.wav");
+
             gameController.GetPlayer().CurrentLake = 2;
             gameController.GetPlayer().ClearUpgrades();
 
@@ -386,6 +408,8 @@ public partial class MainWindow : Window
                 return;
             }
 
+            _ = AudioService.PlayAsync("win.wav");
+
             gameController.GetPlayer().PurchaseUpgrade(upgradeName);
             UpdateCoins();
             ShowWinScreen();
@@ -397,6 +421,8 @@ public partial class MainWindow : Window
             ResultText.Text = "Недостаточно монет или улучшение уже куплено";
             return;
         }
+
+        _ = AudioService.PlayAsync("buy.wav");
 
         ResultText.Text = $"Куплено: {upgradeName}";
 
@@ -411,6 +437,9 @@ public partial class MainWindow : Window
 
         if (state == GameState.Idle)
         {
+            _ = AudioService.PlayAsync("click.wav");
+            _ = AudioService.PlayAsync("cast.wav");
+            
             state = GameState.Waiting;
             ResultText.Text = "Ожидание поклёвки...";
 
@@ -428,10 +457,13 @@ public partial class MainWindow : Window
 
             if (fish == null)
             {
+                _ = AudioService.PlayAsync("fail.wav");
                 ResultText.Text = "Не клюёт";
                 state = GameState.Idle;
                 return;
             }
+
+            _ = AudioService.PlayAsync("bite.wav");
 
             currentFish = fish;
 
@@ -459,6 +491,9 @@ public partial class MainWindow : Window
 
             if (success)
             {
+                _ = AudioService.PlayAsync("success.wav");
+                _ = AudioService.PlayAsync("coin.wav");
+                
                 SuccessZone.Background = new SolidColorBrush(Colors.LimeGreen);
 
                 string resultMessage = "";
@@ -491,6 +526,8 @@ public partial class MainWindow : Window
             }
             else
             {
+                _ = AudioService.PlayAsync("fail.wav");
+                
                 SuccessZone.Background = new SolidColorBrush(Colors.Red);
                 ResultText.Text = "Рыба сорвалась";
             }
@@ -544,5 +581,8 @@ public partial class MainWindow : Window
 
         WinCoinsText.Text = $"Итоговые монеты: {gameController.GetCoins()}";
         WinPanel.IsVisible = true;
+
+        // Останавливаем музыку на экране победы (опционально)
+        AudioService.StopBackgroundMusic();
     }
 }

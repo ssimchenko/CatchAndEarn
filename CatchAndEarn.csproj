@@ -37,24 +37,13 @@
       <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="NetCoreAudio" Version="2.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <AvaloniaResource Include="Assets\2background.png" />
-    <AvaloniaResource Include="Assets\2lake.png" />
-    <AvaloniaResource Include="Assets\background.png" />
-    <AvaloniaResource Include="Assets\catch_button.png" />
-    <AvaloniaResource Include="Assets\coin.png" />
-    <AvaloniaResource Include="Assets\collection_button.png" />
-    <AvaloniaResource Include="Assets\exitbutton.png" />
-    <AvaloniaResource Include="Assets\float.png" />
-    <AvaloniaResource Include="Assets\lake_background.png" />
-    <AvaloniaResource Include="Assets\left_panel.png" />
-    <AvaloniaResource Include="Assets\location_sign.png" />
-    <AvaloniaResource Include="Assets\menu_button.png" />
-    <AvaloniaResource Include="Assets\playbutton.png" />
-    <AvaloniaResource Include="Assets\player.png" />
-    <AvaloniaResource Include="Assets\shop_button.png" />
-    <AvaloniaResource Include="Assets\title.png" />
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+    <ItemGroup>
+    <None Update="Assets/Audio/*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
