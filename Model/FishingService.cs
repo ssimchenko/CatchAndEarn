@@ -4,10 +4,12 @@ using System.Linq;
 
 namespace CatchAndEarn.Model;
 
+// сервис ловли: пулы рыб, взвешенный рандом, бонусы
 public class FishingService
 {
     private readonly Random random = new();
 
+    // рыбы первого озера: шанс (1..25), награда (5..1000)
     private readonly List<Fish> lake1Fishes = new()
     {
         new Fish("Карась", 25, 5),
@@ -27,6 +29,7 @@ public class FishingService
         new Fish("Легендарная Емельяновка", 0.1, 1000)
     };
 
+    // рыбы второго озера: чуть выше награды, свои названия
     private readonly List<Fish> lake2Fishes = new()
     {
         new Fish("Призрачный пескарь", 25, 6),
@@ -46,21 +49,25 @@ public class FishingService
         new Fish("Мифический Юлерн", 0.1, 1100)
     };
 
+    // вернуть список рыб для указанного озера
     public IReadOnlyList<Fish> GetFishesForLake(int lakeId) => lakeId == 1 ? lake1Fishes : lake2Fishes;
 
+    // основной алгоритм ловли: взвешенный рандом с бонусами
+    // excludeUltraRare — исключает рыб с шансом 0.1% (для трофейной сетки)
     public Fish? TryCatchFish(int lakeId, bool goldenLureActive = false, double rareFishBonus = 5.0, bool excludeUltraRare = false)
     {
         var fishes = GetFishesForLake(lakeId);
         
+        // фильтрация ультраредких для второго броска
         if (excludeUltraRare)
             fishes = fishes.Where(f => f.Chance > 0.1).ToList();
         
-        if (fishes.Count == 0)
-            return null;
+        if (fishes.Count == 0) return null;
         
-        if (random.NextDouble() < 0.05)
-            return null;
+        // 5% шанс что вообще не клюнет
+        if (random.NextDouble() < 0.05) return null;
 
+        // расчёт суммарного шанса с учётом бонуса приманки
         double totalChance = 0;
         foreach (var fish in fishes)
         {
@@ -70,9 +77,9 @@ public class FishingService
             totalChance += chance;
         }
 
-        if (totalChance == 0)
-            return null;
+        if (totalChance == 0) return null;
 
+        // взвешенный рандом: выбираем рыбу по накопленной вероятности
         double roll = random.NextDouble() * totalChance;
         double current = 0;
 
@@ -83,11 +90,9 @@ public class FishingService
                 chance += rareFishBonus;
 
             current += chance;
-
-            if (roll <= current)
-                return fish;
+            if (roll <= current) return fish;
         }
 
-        return fishes[0];
+        return fishes[0]; // фолбэк на первую рыбу
     }
 }

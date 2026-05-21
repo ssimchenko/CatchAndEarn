@@ -5,11 +5,13 @@ using System.Diagnostics;
 
 namespace CatchAndEarn.Model;
 
+// кроссплатформенное аудио: sfx и фоновая музыка через системные плееры
 public static class AudioService
 {
     private static readonly string _audioPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Audio");
     private static Process? _musicProcess;
 
+    // проиграть короткий звук (click, cast, success и т.д.)
     public static async Task PlayAsync(string fileName)
     {
         try
@@ -36,7 +38,7 @@ public static class AudioService
                     };
 
                     using var process = Process.Start(psi);
-                    process?.WaitForExit(5000); // Ждём максимум 5 секунд
+                    process?.WaitForExit(5000); // таймаут 5 сек чтобы не висело
                 }
                 catch (Exception ex)
                 {
@@ -50,6 +52,7 @@ public static class AudioService
         }
     }
 
+    // проиграть фоновую музыку с зацикливанием
     public static async Task PlayBackgroundMusicAsync(string fileName)
     {
         try
@@ -80,7 +83,7 @@ public static class AudioService
                         _musicProcess = Process.Start(psi);
                         _musicProcess?.WaitForExit();
                         
-                        Task.Delay(100).Wait();
+                        Task.Delay(100).Wait(); // пауза между циклами
                     }
                     catch
                     {
@@ -95,6 +98,7 @@ public static class AudioService
         }
     }
 
+    // остановить фоновую музыку
     public static void StopBackgroundMusic()
     {
         try
@@ -105,41 +109,32 @@ public static class AudioService
                 _musicProcess.Dispose();
             }
         }
-        catch
-        {
-            // Игнорируем ошибки
-        }
+        catch { }
         finally
         {
             _musicProcess = null;
         }
     }
 
+    // выбрать команду плеера по ос: afplay / powershell / aplay
     private static string GetPlayerCommand()
     {
-        if (OperatingSystem.IsMacOS())
-            return "afplay";
-        else if (OperatingSystem.IsWindows())
-            return "powershell";
-        else if (OperatingSystem.IsLinux())
-            return "aplay"; // или "paplay"
-        
-        return "afplay"; // по умолчанию macOS
+        if (OperatingSystem.IsMacOS()) return "afplay";
+        if (OperatingSystem.IsWindows()) return "powershell";
+        if (OperatingSystem.IsLinux()) return "aplay";
+        return "afplay";
     }
 
+    // сформировать аргументы для плеера с учётом ос и пути
     private static string GetPlayerArguments(string filePath)
     {
-        if (OperatingSystem.IsMacOS())
-            return $"\"{filePath}\"";
-        else if (OperatingSystem.IsWindows())
-            return $"-c \"(New-Object Media.SoundPlayer '{filePath.Replace("\\", "\\\\")}').PlaySync();\"";
-        else if (OperatingSystem.IsLinux())
-            return $"\"{filePath}\"";
-        
+        if (OperatingSystem.IsMacOS()) return $"\"{filePath}\"";
+        if (OperatingSystem.IsWindows()) return $"-c \"(New-Object Media.SoundPlayer '{filePath.Replace("\\", "\\\\")}').PlaySync();\"";
+        if (OperatingSystem.IsLinux()) return $"\"{filePath}\"";
         return $"\"{filePath}\"";
-
-        
     }
+
+    // полная остановка всех звуков (при закрытии игры)
     public static void StopAll()
     {
         StopBackgroundMusic();
@@ -163,8 +158,6 @@ public static class AudioService
                 Process.Start(psi)?.WaitForExit(500);
             }
         }
-        catch
-        {
-        }
+        catch { }
     }
 }
