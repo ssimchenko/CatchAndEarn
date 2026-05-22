@@ -11,9 +11,16 @@ public static class AudioService
     private static readonly string _audioPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Audio");
     private static Process? _musicProcess;
 
+    // настройки громкости (доступны из View)
+    public static bool IsSfxEnabled { get; set; } = true;
+    public static bool IsMusicEnabled { get; set; } = true;
+
     // проиграть короткий звук (click, cast, success и т.д.)
     public static async Task PlayAsync(string fileName)
     {
+        // проверка: включен ли звук
+        if (!IsSfxEnabled) return;
+
         try
         {
             var fullPath = Path.Combine(_audioPath, fileName);
@@ -53,50 +60,60 @@ public static class AudioService
     }
 
     // проиграть фоновую музыку с зацикливанием
-    public static async Task PlayBackgroundMusicAsync(string fileName)
+public static async Task PlayBackgroundMusicAsync(string fileName)
+{
+    // проверка: включена ли музыка
+    if (!IsMusicEnabled)
     {
-        try
-        {
-            StopBackgroundMusic();
-
-            var fullPath = Path.Combine(_audioPath, fileName);
-            if (!File.Exists(fullPath))
-            {
-                Console.WriteLine($"Music file not found: {fullPath}");
-                return;
-            }
-
-            await Task.Run(() =>
-            {
-                while (_musicProcess == null || _musicProcess.HasExited)
-                {
-                    try
-                    {
-                        var psi = new ProcessStartInfo
-                        {
-                            FileName = GetPlayerCommand(),
-                            Arguments = GetPlayerArguments(fullPath),
-                            UseShellExecute = false,
-                            CreateNoWindow = true
-                        };
-
-                        _musicProcess = Process.Start(psi);
-                        _musicProcess?.WaitForExit();
-                        
-                        Task.Delay(100).Wait(); // пауза между циклами
-                    }
-                    catch
-                    {
-                        break;
-                    }
-                }
-            });
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Music error: {ex.Message}");
-        }
+        StopBackgroundMusic();
+        return;
     }
+
+    try
+    {
+        StopBackgroundMusic();
+
+        var fullPath = Path.Combine(_audioPath, fileName);
+        if (!File.Exists(fullPath))
+        {
+            Console.WriteLine($"Music file not found: {fullPath}");
+            return;
+        }
+
+        await Task.Run(() =>
+        {
+            while (_musicProcess == null || _musicProcess.HasExited)
+            {
+                // дополнительная проверка внутри цикла
+                if (!IsMusicEnabled) break;
+                
+                try
+                {
+                    var psi = new ProcessStartInfo
+                    {
+                        FileName = GetPlayerCommand(),
+                        Arguments = GetPlayerArguments(fullPath),
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+
+                    _musicProcess = Process.Start(psi);
+                    _musicProcess?.WaitForExit();
+                    
+                    Task.Delay(100).Wait(); // пауза между циклами
+                }
+                catch
+                {
+                    break;
+                }
+            }
+        });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Music error: {ex.Message}");
+    }
+}
 
     // остановить фоновую музыку
     public static void StopBackgroundMusic()

@@ -6,7 +6,6 @@
         Height="720"
         Background="Black">
 
-    <!-- стили кнопок: анимации hover/press -->
     <Window.Styles>
 
         <!-- кнопки меню: сдвиг и прозрачность -->
@@ -89,6 +88,28 @@
             <Setter Property="RenderTransform" Value="scale(0.98)"/>
         </Style>
 
+        <!-- кнопки звука: прозрачные с анимацией -->
+        <Style Selector="Button.SoundButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Width" Value="45"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.1"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <Style Selector="Button.SoundButton:pointerover">
+            <Setter Property="RenderTransform" Value="scale(1.1)"/>
+        </Style>
+
     </Window.Styles>
 
     <Viewbox Stretch="Uniform">
@@ -155,15 +176,31 @@
                     </Button>
                 </StackPanel>
 
-                <!-- счётчик монет -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                            Margin="80,0,0,50" Spacing="8">
-                    <TextBlock Text="Монеты:" Foreground="#f5e6b3" FontSize="26" FontWeight="Bold"
-                               VerticalAlignment="Center"/>
-                    <TextBlock x:Name="CoinsText" Text="0" Foreground="#ffd45c" FontSize="30" FontWeight="Bold"
-                               VerticalAlignment="Center"/>
-                    <Image Source="avares://CatchAndEarn/Assets/Image/coin.png"
-                           Width="36" Height="36" VerticalAlignment="Center"/>
+                <!-- панель управления звуком и монетами -->
+                <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="80,0,0,50" Spacing="8">
+                    
+                    <!-- кнопки звука -->
+                    <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Left">
+                        <Button x:Name="AllMuteButton" Classes="SoundButton" Click="AllMuteButton_Click">
+                            <Image Source="avares://CatchAndEarn/Assets/Image/off_all_button.png" Stretch="Fill"/>
+                        </Button>
+                        <Button x:Name="SfxMuteButton" Classes="SoundButton" Click="SfxMuteButton_Click">
+                            <Image x:Name="SfxIcon" Source="avares://CatchAndEarn/Assets/Image/sound_vutton.png" Stretch="Fill"/>
+                        </Button>
+                        <Button x:Name="MusicMuteButton" Classes="SoundButton" Click="MusicMuteButton_Click">
+                            <Image x:Name="MusicIcon" Source="avares://CatchAndEarn/Assets/Image/music_button.png" Stretch="Fill"/>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- монеты -->
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="Монеты:" Foreground="#f5e6b3" FontSize="26" FontWeight="Bold"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock x:Name="CoinsText" Text="0" Foreground="#ffd45c" FontSize="30" FontWeight="Bold"
+                                   VerticalAlignment="Center"/>
+                        <Image Source="avares://CatchAndEarn/Assets/Image/coin.png"
+                               Width="36" Height="36" VerticalAlignment="Center"/>
+                    </StackPanel>
                 </StackPanel>
 
                 <!-- зона ловли: текст, skillcheck, кнопка -->

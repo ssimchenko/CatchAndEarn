@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 
 namespace CatchAndEarn.View;
 
-// главное окно: управление экранами, обработчики, обновление ui
 public partial class MainWindow : Window
 {
     private GameController? gameController;
@@ -24,19 +23,22 @@ public partial class MainWindow : Window
     private Fish? currentFish;
     private readonly Random random = new();
 
+    private bool isMusicMuted = false;
+    private bool isSfxMuted = false;
+    private bool isAllMuted = false;
+
     public MainWindow()
     {
         InitializeComponent();
-        this.Closing += MainWindow_Closing; // чистим аудио при закрытии
+        this.Closing += MainWindow_Closing;
+        UpdateSoundIcons();
     }
 
-    // останавливаем все звуки при выходе
     private void MainWindow_Closing(object? sender, Avalonia.Controls.WindowClosingEventArgs e)
     {
         AudioService.StopAll();
     }
 
-    // состояния игры для логики кнопки ловли
     private enum GameState
     {
         Idle,
@@ -45,14 +47,12 @@ public partial class MainWindow : Window
         Result
     }
 
-    // запуск игры
     private void StartGame_Click(object? sender, RoutedEventArgs e)
     {
         _ = AudioService.PlayAsync("click.wav");
         StartGame();
     }
 
-    // возврат в меню
     private void BackToMenu_Click(object? sender, RoutedEventArgs e)
     {
         _ = AudioService.PlayAsync("click.wav");
@@ -76,14 +76,12 @@ public partial class MainWindow : Window
         AudioService.StopBackgroundMusic();
     }
 
-    // выход из приложения
     private void Exit_Click(object? sender, RoutedEventArgs e)
     {
         _ = AudioService.PlayAsync("click.wav");
         Close();
     }
 
-    // инициализация игры: сброс состояния, запуск музыки
     private async void StartGame()
     {
         var player = new Player();
@@ -113,7 +111,6 @@ public partial class MainWindow : Window
         await AudioService.PlayBackgroundMusicAsync("background_music_calm.wav");
     }
 
-    // переключение панели коллекции
     private void ToggleCollection_Click(object? sender, RoutedEventArgs e)
     {
         _ = AudioService.PlayAsync("click.wav");
@@ -125,7 +122,6 @@ public partial class MainWindow : Window
         CollectionPanel.IsVisible = shouldOpen;
     }
 
-    // переключение панели магазина
     private void ToggleShop_Click(object? sender, RoutedEventArgs e)
     {
         _ = AudioService.PlayAsync("click.wav");
@@ -137,7 +133,6 @@ public partial class MainWindow : Window
         ShopPanel.IsVisible = shouldOpen;
     }
 
-    // обновление списка пойманных рыб
     private void UpdateCollection()
     {
         if (gameController == null) return;
@@ -158,10 +153,8 @@ public partial class MainWindow : Window
         CollectionText.Text = text.ToString();
     }
 
-    // название локации по id
     private string GetLakeName(int lake) => lake == 1 ? "Глубокий пруд" : "Море C#";
 
-    // обновление списка улучшений в магазине
     private void UpdateShopUI()
     {
         ShopList.Children.Clear();
@@ -176,7 +169,6 @@ public partial class MainWindow : Window
             AddShopItem(upgrade.Name, upgrade.Desc, upgrade.Cost, currentLake);
     }
 
-    // список доступных улучшений для озера
     private List<(string Name, string Desc, int Cost)> GetUpgradeDefinitions(int lake)
     {
         if (lake == 1)
@@ -203,7 +195,6 @@ public partial class MainWindow : Window
         };
     }
 
-    // создание карточки улучшения в магазине
     private void AddShopItem(string name, string description, int cost, int currentLake)
     {
         if (gameController == null) return;
@@ -266,7 +257,6 @@ public partial class MainWindow : Window
         ShopList.Children.Add(itemBorder);
     }
 
-    // кнопка покупки в карточке улучшения
     private Button CreateBuyButton(string upgradeName, int cost, bool isPurchased, bool isDisabled)
     {
         var buttonText = new TextBlock
@@ -306,12 +296,10 @@ public partial class MainWindow : Window
         return button;
     }
 
-    // обработка покупки улучшения
     private void BuyUpgrade(string upgradeName, int cost)
     {
         if (gameController == null) return;
 
-        // покупка ключа: переход на озеро 2
         if (upgradeName == "Ключ от Моря C#")
         {
             if (!gameController.GetPlayer().SpendCoins(cost))
@@ -341,7 +329,6 @@ public partial class MainWindow : Window
             return;
         }
 
-        // покупка короны: победа
         if (upgradeName == "Корона Победителя")
         {
             if (!gameController.GetPlayer().SpendCoins(cost))
@@ -357,7 +344,6 @@ public partial class MainWindow : Window
             return;
         }
 
-        // обычная покупка
         if (!gameController.BuyUpgrade(upgradeName, cost))
         {
             ResultText.Text = "Недостаточно монет или улучшение уже куплено";
@@ -370,12 +356,10 @@ public partial class MainWindow : Window
         UpdateShopUI();
     }
 
-    // основная логика кнопки ловли
     private async void CatchButton_Click(object? sender, RoutedEventArgs e)
     {
         if (gameController == null) return;
 
-        // начало: заброс удочки
         if (state == GameState.Idle)
         {
             _ = AudioService.PlayAsync("click.wav");
@@ -403,7 +387,6 @@ public partial class MainWindow : Window
             _ = AudioService.PlayAsync("bite.wav");
             currentFish = fish;
 
-            // расчёт бонусов для skillcheck
             double zoneBonus = gameController.GetPlayer().HasUpgrade("Широкая зона")
                 ? currentLake == 1 ? 2.0 : 2.5 : 1.0;
             double markerSpeedBonus = gameController.GetPlayer().HasUpgrade("Скоростная реакция")
@@ -417,7 +400,6 @@ public partial class MainWindow : Window
             state = GameState.SkillCheck;
             ResultText.Text = $"ЛОВИ! ({fish.Name})";
         }
-        // результат skillcheck
         else if (state == GameState.SkillCheck && skillCheck != null)
         {
             bool success = skillCheck.TryHit();
@@ -432,7 +414,6 @@ public partial class MainWindow : Window
 
                 string resultMessage = currentFish != null ? gameController.RewardFish(currentFish) : "";
 
-                // трофейная сетка: второй бросок
                 if (gameController.GetPlayer().HasUpgrade("Трофейная сетка"))
                 {
                     int currentLake = gameController.GetPlayer().CurrentLake;
@@ -467,7 +448,6 @@ public partial class MainWindow : Window
         }
     }
 
-    // обновление позиции маркера и зоны в skillcheck
     private void UpdateSkillCheckUI()
     {
         if (skillCheck == null) return;
@@ -482,14 +462,12 @@ public partial class MainWindow : Window
         SuccessZone.Margin = new Thickness(zoneStart, 0, 0, 0);
     }
 
-    // обновление отображения монет
     private void UpdateCoins()
     {
         if (gameController == null) return;
         CoinsText.Text = gameController.GetCoins().ToString();
     }
 
-    // показ экрана победы
     private void ShowWinScreen()
     {
         if (gameController == null) return;
@@ -502,5 +480,50 @@ public partial class MainWindow : Window
         WinPanel.IsVisible = true;
 
         AudioService.StopBackgroundMusic();
+    }
+
+    private void AllMuteButton_Click(object? sender, RoutedEventArgs e)
+    {
+        bool newState = !isAllMuted;
+        isMusicMuted = newState;
+        isSfxMuted = newState;
+        isAllMuted = newState;
+        
+        AudioService.IsMusicEnabled = !isMusicMuted;
+        AudioService.IsSfxEnabled = !isSfxMuted;
+        
+        if (isAllMuted) AudioService.StopBackgroundMusic();
+        else if (gameController != null && GamePanel.IsVisible && !WinPanel.IsVisible)
+            _ = AudioService.PlayBackgroundMusicAsync("background_music_calm.wav");
+            
+        UpdateSoundIcons();
+    }
+
+    private void MusicMuteButton_Click(object? sender, RoutedEventArgs e)
+    {
+        isMusicMuted = !isMusicMuted;
+        AudioService.IsMusicEnabled = !isMusicMuted;
+        
+        if (isMusicMuted) AudioService.StopBackgroundMusic();
+        else if (gameController != null && GamePanel.IsVisible && !WinPanel.IsVisible)
+            _ = AudioService.PlayBackgroundMusicAsync("background_music_calm.wav");
+            
+        UpdateSoundIcons();
+    }
+
+    private void SfxMuteButton_Click(object? sender, RoutedEventArgs e)
+    {
+        isSfxMuted = !isSfxMuted;
+        AudioService.IsSfxEnabled = !isSfxMuted;
+        UpdateSoundIcons();
+    }
+
+    private void UpdateSoundIcons()
+    {
+        isAllMuted = isMusicMuted && isSfxMuted;
+        
+        AllMuteButton.Opacity = isAllMuted ? 1.0 : 0.5;
+        SfxMuteButton.Opacity = isSfxMuted ? 1.0 : 0.5;
+        MusicMuteButton.Opacity = isMusicMuted ? 1.0 : 0.5;
     }
 }
