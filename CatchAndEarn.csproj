@@ -10,11 +10,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-<<<<<<< HEAD
-    <None Remove="Assets\background.png" />
-    <None Remove="Assets\exitbutton.png" />
-    <None Remove="Assets\playbutton.png" />
-=======
     <None Remove="Assets\2background.png" />
     <None Remove="Assets\2lake.png" />
     <None Remove="Assets\background.png" />
@@ -30,7 +25,6 @@
     <None Remove="Assets\playbutton.png" />
     <None Remove="Assets\player.png" />
     <None Remove="Assets\shop_button.png" />
->>>>>>> 784d05e
     <None Remove="Assets\title.png" />
   </ItemGroup>
 
@@ -43,15 +37,6 @@
       <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
-<<<<<<< HEAD
-  </ItemGroup>
-
-  <ItemGroup>
-    <AvaloniaResource Include="Assets\background.png" />
-    <AvaloniaResource Include="Assets\exitbutton.png" />
-    <AvaloniaResource Include="Assets\playbutton.png" />
-    <AvaloniaResource Include="Assets\title.png" />
-=======
     <PackageReference Include="NetCoreAudio" Version="2.0.1" />
   </ItemGroup>
 
@@ -60,6 +45,5 @@
   </ItemGroup>
     <ItemGroup>
     <None Update="Assets/Audio/*" CopyToOutputDirectory="PreserveNewest" />
->>>>>>> 784d05e
   </ItemGroup>
 </Project>
