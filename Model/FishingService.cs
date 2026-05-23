@@ -4,10 +4,18 @@ using System.Linq;
 
 namespace CatchAndEarn.Model;
 
+<<<<<<< HEAD
+=======
+// сервис ловли: пулы рыб, взвешенный рандом, бонусы
+>>>>>>> 784d05e
 public class FishingService
 {
     private readonly Random random = new();
 
+<<<<<<< HEAD
+=======
+    // рыбы первого озера: шанс (1..25), награда (5..1000)
+>>>>>>> 784d05e
     private readonly List<Fish> lake1Fishes = new()
     {
         new Fish("Карась", 25, 5),
@@ -27,6 +35,10 @@ public class FishingService
         new Fish("Легендарная Емельяновка", 0.1, 1000)
     };
 
+<<<<<<< HEAD
+=======
+    // рыбы второго озера: чуть выше награды, свои названия
+>>>>>>> 784d05e
     private readonly List<Fish> lake2Fishes = new()
     {
         new Fish("Призрачный пескарь", 25, 6),
@@ -46,12 +58,21 @@ public class FishingService
         new Fish("Мифический Юлерн", 0.1, 1100)
     };
 
+<<<<<<< HEAD
     public IReadOnlyList<Fish> GetFishesForLake(int lakeId) => lakeId == 1 ? lake1Fishes : lake2Fishes;
 
+=======
+    // вернуть список рыб для указанного озера
+    public IReadOnlyList<Fish> GetFishesForLake(int lakeId) => lakeId == 1 ? lake1Fishes : lake2Fishes;
+
+    // основной алгоритм ловли: взвешенный рандом с бонусами
+    // excludeUltraRare — исключает рыб с шансом 0.1% (для трофейной сетки)
+>>>>>>> 784d05e
     public Fish? TryCatchFish(int lakeId, bool goldenLureActive = false, double rareFishBonus = 5.0, bool excludeUltraRare = false)
     {
         var fishes = GetFishesForLake(lakeId);
         
+<<<<<<< HEAD
         if (excludeUltraRare)
             fishes = fishes.Where(f => f.Chance > 0.1).ToList();
         
@@ -61,6 +82,18 @@ public class FishingService
         if (random.NextDouble() < 0.05)
             return null;
 
+=======
+        // фильтрация ультраредких для второго броска
+        if (excludeUltraRare)
+            fishes = fishes.Where(f => f.Chance > 0.1).ToList();
+        
+        if (fishes.Count == 0) return null;
+        
+        // 5% шанс что вообще не клюнет
+        if (random.NextDouble() < 0.05) return null;
+
+        // расчёт суммарного шанса с учётом бонуса приманки
+>>>>>>> 784d05e
         double totalChance = 0;
         foreach (var fish in fishes)
         {
@@ -70,9 +103,15 @@ public class FishingService
             totalChance += chance;
         }
 
+<<<<<<< HEAD
         if (totalChance == 0)
             return null;
 
+=======
+        if (totalChance == 0) return null;
+
+        // взвешенный рандом: выбираем рыбу по накопленной вероятности
+>>>>>>> 784d05e
         double roll = random.NextDouble() * totalChance;
         double current = 0;
 
@@ -83,11 +122,18 @@ public class FishingService
                 chance += rareFishBonus;
 
             current += chance;
+<<<<<<< HEAD
 
             if (roll <= current)
                 return fish;
         }
 
         return fishes[0];
+=======
+            if (roll <= current) return fish;
+        }
+
+        return fishes[0]; // фолбэк на первую рыбу
+>>>>>>> 784d05e
     }
 }
