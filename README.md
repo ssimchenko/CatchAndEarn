@@ -12,6 +12,16 @@ Built with **C#**, **.NET 8**, and **Avalonia UI 12** using an MVC-style archite
 ![Avalonia UI](https://img.shields.io/badge/Avalonia%20UI-12.0.1-8B44AC)
 ![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-2563EB)
 
+## Play on Windows
+
+1. Open the [latest release](https://github.com/ssimchenko/CatchAndEarn/releases/latest) and download `CatchAndEarn-Windows-x64.zip` under **Assets**.
+2. Extract the entire archive.
+3. Open the extracted folder and run `CatchAndEarn.exe`.
+
+Requires 64-bit Windows. VS Code and .NET do not need to be installed. Keep the other extracted files alongside the executable.
+
+The same archive is also available in the repository: [Windows x64 build](./builds/CatchAndEarn-Windows-x64.zip).
+
 <p align="center">
   <img src="./Assets/Image/2background.png" alt="Catch & Earn sea location" width="900" />
 </p>
@@ -66,7 +76,7 @@ The game logic is separated from the interface:
 - `Player` keeps the current balance, collection, location, and upgrades.
 - `MainWindow` renders the state and manages transitions between screens.
 
-## Getting Started
+## Run from source
 
 ### Requirements
 
@@ -92,7 +102,7 @@ This project helped me practise desktop UI development, event-driven programming
 - Save progress between sessions
 - Add volume controls
 - Add automated tests for the game economy and catch algorithm
-- Publish ready-to-run builds for every supported platform
+- Publish ready-to-run builds for macOS and Linux
 
 ## Project Presentation
 
